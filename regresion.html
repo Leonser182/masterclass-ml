@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regresión en ML — Masterclass</title>
+<style>
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;--accent:#378ADD;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:16px;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:1.2rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);font-weight:500}
+.hero{background:linear-gradient(135deg,#1e3a5f,#378ADD);color:white;padding:3rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;margin-bottom:.6rem}
+.hero p{opacity:.85;max-width:580px;margin:0 auto;font-size:15px}
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+/* NAV TABS */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem;margin-bottom:2rem}
+.tab{padding:6px 14px;font-size:13px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.tab.active,.tab:hover{background:#EBF4FF;color:var(--accent);border-color:#BDD9F5;font-weight:500}
+.panel{display:none}.panel.on{display:block}
+/* CONTENT */
+h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem;color:var(--text)}
+h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem;color:var(--text)}
+p,li{font-size:14px;color:var(--muted);line-height:1.7}
+ul{padding-left:1.2rem;margin-bottom:1rem}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-bottom:1.25rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem}
+.cl{border-left:3px solid;border-radius:0 var(--radius) var(--radius) 0}
+.lb{border-left-color:#378ADD}.lp{border-left-color:#534AB7}.lt{border-left-color:#0F6E56}
+.la{border-left-color:#BA7517}.lr{border-left-color:#A32D2D}.lg{border-left-color:#639922}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px}
+.bg{background:#EAF3DE;color:#27500A}.br{background:#FCEBEB;color:#791F1F}
+.ba{background:#FAEEDA;color:#633806}.bb{background:#E6F1FB;color:#0C447C}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin:.35rem 0 .75rem}
+.fm{font-family:'Courier New',monospace;font-size:12px;background:#f1f5f9;padding:.6rem 1rem;border-radius:8px;color:#1e293b;margin:.4rem 0 .9rem;border:1px solid #e2e8f0;line-height:1.7;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1.25rem}
+th{text-align:left;padding:8px 10px;font-weight:600;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:#f9fafb}
+td{padding:8px 10px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:.65rem}
+.sn{min-width:24px;height:24px;border-radius:50%;background:#EBF4FF;border:1px solid #BDD9F5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.cw{width:100%;margin:1rem 0}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:5px}
+.ls{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#78350f;margin-bottom:1rem}
+footer{background:#1e293b;color:#94a3b8;text-align:center;padding:1.5rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF;transition:all .2s}
+.back-btn:hover{background:#378ADD;color:white;border-color:#378ADD}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html" class="active">Regresión</a>
+    <a href="clasificacion.html">Clasificación</a>
+    <a href="no-supervisado.html">No Supervisado</a>
+    <a href="redes-neuronales.html">Redes Neuronales</a>
+    <a href="keras.html">Keras</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>📐 Regresión en Machine Learning</h1>
+  <p>Lineal · Ridge · Lasso · ElasticNet · SVR · Random Forest · Gradient Boosting</p>
+</div>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('intro',this)">🎯 Intro</button>
+    <button class="tab" onclick="show('tipos',this)">📐 Tipos</button>
+    <button class="tab" onclick="show('prepro',this)">🔧 Preprocesamiento</button>
+    <button class="tab" onclick="show('hiperparam',this)">⚙️ Hiperparámetros</button>
+    <button class="tab" onclick="show('cv',this)">🔁 Validación cruzada</button>
+    <button class="tab" onclick="show('metricas',this)">📊 Métricas</button>
+    <button class="tab" onclick="show('comparativa',this)">⚖️ Comparativa</button>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="panel on">
+    <h3>¿Qué es la regresión en ML?</h3>
+    <p style="margin-bottom:1rem">La regresión predice un valor numérico continuo a partir de variables de entrada. El objetivo es encontrar la función f(X) que minimiza el error entre predicciones y valores reales.</p>
+    <div class="fm">ŷ = f(X) + ε      donde ε ~ N(0, σ²)</div>
+    <div class="g2">
+      <div class="card cl lb">
+        <h4>Regresión lineal (OLS)</h4>
+        <p>Relación lineal entre features y target. Base de todo. Solución analítica exacta.</p>
+        <div class="pills"><span class="badge bb">OLS</span><span class="badge bg">Rápido</span></div>
+      </div>
+      <div class="card cl lp">
+        <h4>Regularización</h4>
+        <p>Ridge (L2), Lasso (L1), ElasticNet: penalizan coeficientes para evitar overfitting.</p>
+        <div class="pills"><span class="badge bb">L1 / L2</span><span class="badge bg">Anti-overfitting</span></div>
+      </div>
+      <div class="card cl lt">
+        <h4>No lineal</h4>
+        <p>SVR, Random Forest, Gradient Boosting: capturan relaciones no lineales.</p>
+        <div class="pills"><span class="badge bb">Flexible</span><span class="badge bg">Alta precisión</span></div>
+      </div>
+    </div>
+    <div class="tip">💡 <strong>Regla de oro:</strong> siempre empieza con Regresión Lineal como baseline antes de probar modelos más complejos.</div>
+    <div class="cw" style="height:260px"><canvas id="cIntro"></canvas></div>
+  </div>
+
+  <!-- TIPOS -->
+  <div id="tipos" class="panel">
+    <h3>Tipos de regresión</h3>
+    <div class="card cl lb" style="margin-bottom:10px">
+      <h4>1. Regresión Lineal (OLS)</h4>
+      <div class="fm">ŷ = β₀ + β₁x₁ + … + βₙxₙ    →    min Σ(yᵢ - ŷᵢ)²</div>
+      <div class="pills"><span class="badge bg">✓ Interpretable</span><span class="badge bg">✓ Rápido</span><span class="badge br">✗ Solo relaciones lineales</span></div>
+    </div>
+    <div class="card cl lp" style="margin-bottom:10px">
+      <h4>2. Ridge (L2)</h4>
+      <div class="fm">min Σ(yᵢ - ŷᵢ)² + α·Σβⱼ²</div>
+      <div class="pills"><span class="badge bg">✓ Multicolinealidad</span><span class="badge bg">✓ Estabilidad</span><span class="badge ba">~ No selecciona features</span></div>
+    </div>
+    <div class="card cl lt" style="margin-bottom:10px">
+      <h4>3. Lasso (L1)</h4>
+      <div class="fm">min Σ(yᵢ - ŷᵢ)² + α·Σ|βⱼ|</div>
+      <div class="pills"><span class="badge bg">✓ Selección automática</span><span class="badge bg">✓ Alta dimensión</span><span class="badge br">✗ Grupos correlados</span></div>
+    </div>
+    <div class="card cl la" style="margin-bottom:10px">
+      <h4>4. ElasticNet (L1 + L2)</h4>
+      <div class="fm">min Σ(yᵢ - ŷᵢ)² + α·[ρ·Σ|βⱼ| + (1-ρ)·Σβⱼ²]</div>
+      <div class="pills"><span class="badge bg">✓ Lo mejor de ambos</span><span class="badge ba">~ Más hiperparámetros</span></div>
+    </div>
+    <div class="cw" style="height:280px"><canvas id="cTipos"></canvas></div>
+  </div>
+
+  <!-- PREPROCESAMIENTO -->
+  <div id="prepro" class="panel">
+    <h3>Preprocesamiento de datos</h3>
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Manejo de nulos</h4>
+    <div class="g2" style="margin-bottom:1.25rem">
+      <div class="card">
+        <h4>Imputación simple</h4>
+        <p>Media, mediana (robusta a outliers) o moda para categóricas.</p>
+        <div class="pills"><span class="badge bb">Numérico → mediana</span><span class="badge bg">Categórico → moda</span></div>
+      </div>
+      <div class="card">
+        <h4>Imputación avanzada</h4>
+        <p>KNN Imputer o MICE: usan relaciones entre variables.</p>
+        <div class="pills"><span class="badge bb">MICE</span><span class="badge bb">KNN</span><span class="badge ba">Alto costo</span></div>
+      </div>
+    </div>
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Escalado — crítico para modelos regularizados</h4>
+    <table>
+      <tr><th>Método</th><th>Fórmula</th><th>Cuándo usar</th></tr>
+      <tr><td>StandardScaler</td><td>(x−μ)/σ → μ=0, σ=1</td><td>Ridge, Lasso, SVR</td></tr>
+      <tr><td>MinMaxScaler</td><td>(x−min)/(max−min)</td><td>Redes neuronales</td></tr>
+      <tr><td>RobustScaler</td><td>(x−Q2)/(Q3−Q1)</td><td>Con muchos outliers</td></tr>
+      <tr><td>Sin escalado</td><td>—</td><td>Árboles, Random Forest</td></tr>
+    </table>
+    <div class="fm">from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+pipeline = Pipeline([
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler',  StandardScaler()),
+    ('model',   Ridge(alpha=1.0))
+])</div>
+  </div>
+
+  <!-- HIPERPARÁMETROS -->
+  <div id="hiperparam" class="panel">
+    <h3>Hiperparámetros clave</h3>
+    <div class="card cl lb" style="margin-bottom:1rem">
+      <h4>Ridge / Lasso / ElasticNet</h4>
+      <table>
+        <tr><th>Parámetro</th><th>Descripción</th><th>Valores típicos</th></tr>
+        <tr><td>alpha (α)</td><td>Fuerza de regularización. Más alto → más penalización</td><td>0.001 – 100</td></tr>
+        <tr><td>l1_ratio</td><td>Mezcla L1/L2 en ElasticNet. 0=Ridge, 1=Lasso</td><td>0.1 – 0.9</td></tr>
+        <tr><td>fit_intercept</td><td>Si incluir sesgo β₀</td><td>True (default)</td></tr>
+      </table>
+    </div>
+    <div class="card cl lp" style="margin-bottom:1rem">
+      <h4>Random Forest / Gradient Boosting</h4>
+      <table>
+        <tr><th>Parámetro</th><th>Descripción</th><th>Rango típico</th></tr>
+        <tr><td>n_estimators</td><td>Número de árboles</td><td>100–1000</td></tr>
+        <tr><td>max_depth</td><td>Profundidad máxima del árbol</td><td>3–10 (GB), None (RF)</td></tr>
+        <tr><td>learning_rate</td><td>Tasa de aprendizaje (solo GB)</td><td>0.01–0.3</td></tr>
+        <tr><td>max_features</td><td>Features por split</td><td>sqrt, log2, None</td></tr>
+      </table>
+    </div>
+    <h4 style="margin-bottom:.5rem">Optimización con GridSearchCV</h4>
+    <div class="fm">from sklearn.model_selection import GridSearchCV
+
+param_grid = {
+    'model__alpha': [0.001, 0.01, 0.1, 1.0, 10.0, 100.0]
+}
+gs = GridSearchCV(pipeline, param_grid,
+                  cv=5, scoring='r2', n_jobs=-1)
+gs.fit(X_train, y_train)
+print(f"Mejor alpha: {gs.best_params_}")
+print(f"Mejor CV R²: {gs.best_score_:.4f}")</div>
+  </div>
+
+  <!-- CV -->
+  <div id="cv" class="panel">
+    <h3>Validación Cruzada (K-Fold)</h3>
+    <p style="margin-bottom:1rem">Divide los datos en K grupos. Entrena K veces usando K−1 folds y valida en 1. Score final = promedio de los K scores.</p>
+    <div class="g2">
+      <div class="card">
+        <h4>Estrategias de CV</h4>
+        <table>
+          <tr><th>Método</th><th>Cuándo</th></tr>
+          <tr><td>KFold (K=5/10)</td><td>Regresión estándar</td></tr>
+          <tr><td>TimeSeriesSplit</td><td>Datos temporales</td></tr>
+          <tr><td>RepeatedKFold</td><td>Más robustez estadística</td></tr>
+          <tr><td>Leave-One-Out</td><td>Datasets muy pequeños</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h4>Código</h4>
+        <div class="fm">from sklearn.model_selection import (
+    cross_val_score, KFold)
+
+kf = KFold(n_splits=5,
+           shuffle=True,
+           random_state=42)
+
+scores = cross_val_score(
+    model, X_train, y_train,
+    cv=kf, scoring='r2')
+
+print(f"R² μ={scores.mean():.3f}"
+      f" σ={scores.std():.3f}")</div>
+      </div>
+    </div>
+    <div class="tip">⚠️ <strong>Regla anti data-leakage:</strong> nunca uses el test set para seleccionar hiperparámetros. Toda optimización va dentro del CV en el train set.</div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div id="metricas" class="panel">
+    <h3>Métricas de evaluación</h3>
+    <table style="margin-bottom:1.5rem">
+      <tr><th>Métrica</th><th>Fórmula</th><th>Rango</th><th>Cuándo usar</th></tr>
+      <tr><td>MAE</td><td>(1/n)·Σ|yᵢ − ŷᵢ|</td><td>[0, ∞)</td><td>Errores en unidades de y, robusto a outliers</td></tr>
+      <tr><td>RMSE</td><td>√[(1/n)·Σ(yᵢ − ŷᵢ)²]</td><td>[0, ∞)</td><td>Estándar — penaliza errores grandes</td></tr>
+      <tr><td>R²</td><td>1 − SSres/SStot</td><td>(−∞, 1]</td><td>Proporción de varianza explicada</td></tr>
+      <tr><td>MAPE</td><td>(100/n)·Σ|yᵢ−ŷᵢ|/|yᵢ|</td><td>[0, ∞)%</td><td>Comparación entre datasets distintos</td></tr>
+    </table>
+    <div class="cw" style="height:260px"><canvas id="cMetricas"></canvas></div>
+    <div class="leg" style="margin-top:6px">
+      <span><span class="ls" style="background:#A32D2D"></span>RMSE (↓ mejor)</span>
+      <span><span class="ls" style="background:#378ADD"></span>R² (↑ mejor)</span>
+    </div>
+  </div>
+
+  <!-- COMPARATIVA -->
+  <div id="comparativa" class="panel">
+    <h3>¿Cuándo usar cada modelo?</h3>
+    <table style="margin-bottom:1.5rem">
+      <tr><th>Modelo</th><th>Ventajas</th><th>Limitaciones</th><th>Contexto ideal</th></tr>
+      <tr><td>Lineal (OLS)</td><td>Interpretable, rápido</td><td>Solo relaciones lineales</td><td>Baseline siempre</td></tr>
+      <tr><td>Ridge</td><td>Estable con multicolinealidad</td><td>No hace selección</td><td>Muchas variables correladas</td></tr>
+      <tr><td>Lasso</td><td>Selección automática</td><td>Inestable grupos correlados</td><td>Alta dimensión, sparsity</td></tr>
+      <tr><td>ElasticNet</td><td>Combina Ridge+Lasso</td><td>Más hiperparámetros</td><td>Alta dim + grupos correlados</td></tr>
+      <tr><td>SVR</td><td>No lineal, robusto</td><td>Lento N grande</td><td>Datasets medianos, no lineal</td></tr>
+      <tr><td>Random Forest</td><td>Robusto, paralelo</td><td>Menos interpretable</td><td>Producción, datos mixtos</td></tr>
+      <tr><td>Gradient Boosting</td><td>State-of-the-art</td><td>Riesgo overfitting</td><td>Competencias, grandes datasets</td></tr>
+    </table>
+    <div class="step"><div class="sn">1</div><p>Empieza siempre con Regresión Lineal como baseline</p></div>
+    <div class="step"><div class="sn">2</div><p>Si multicolinealidad alta → Ridge. Si quieres selección → Lasso/ElasticNet</p></div>
+    <div class="step"><div class="sn">3</div><p>Si la relación no es lineal → SVR o Random Forest</p></div>
+    <div class="step"><div class="sn">4</div><p>Si necesitas máxima precisión → Gradient Boosting (XGBoost, LightGBM)</p></div>
+    <div class="step"><div class="sn">5</div><p>Valida siempre con CV y selecciona hiperparámetros antes de reportar en test</p></div>
+    <div class="cw" style="height:300px"><canvas id="cRadar"></canvas></div>
+    <div class="leg" id="radarLeg"></div>
+  </div>
+
+</div><!-- container -->
+
+<footer>
+  <p>Masterclass ML · <a href="index.html">← Volver al inicio</a></p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const tc='rgba(0,0,0,.45)', gc='rgba(0,0,0,.07)';
+const P=['#378ADD','#534AB7','#0F6E56','#BA7517','#A32D2D','#639922','#D4537E'];
+const rendered={};
+
+function show(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('active');
+  setTimeout(()=>draw(id),50);
+}
+
+function draw(id){
+  if(rendered[id])return; rendered[id]=true;
+  const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+            scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}};
+
+  if(id==='intro'){
+    const n=50, r=s=>{let v=s;return()=>{v=(v*1664525+1013904223)&0x7fffffff;return v/0x7fffffff;}};
+    const rng=r(42);
+    const xs=Array.from({length:n},(_,i)=>i/5);
+    const noise=xs.map(x=>x*1.8+(rng()-.5)*4+5);
+    new Chart(document.getElementById('cIntro'),{type:'scatter',data:{datasets:[
+      {label:'Datos',data:xs.map((x,i)=>({x,y:noise[i]})),backgroundColor:'rgba(100,100,100,.25)',pointRadius:4},
+      {label:'Lineal',data:xs.map(x=>({x,y:x*1.8+5})),type:'line',borderColor:P[0],borderWidth:2,pointRadius:0,fill:false},
+      {label:'Ridge', data:xs.map(x=>({x,y:x*1.65+5.5})),type:'line',borderColor:P[1],borderWidth:2,borderDash:[5,3],pointRadius:0,fill:false},
+    ]},options:{...bo,layout:{padding:10},plugins:{legend:{display:false}}}});
+  }
+
+  if(id==='tipos'){
+    new Chart(document.getElementById('cTipos'),{type:'bar',
+      data:{labels:['Lineal','Ridge','Lasso','ElasticNet','SVR','Rand. Forest','XGBoost'],
+            datasets:[{label:'MSE (menor=mejor)',data:[18.4,15.2,14.8,14.1,11.3,9.8,8.2],
+                       backgroundColor:P,borderRadius:4}]},
+      options:{...bo,scales:{x:{ticks:{color:tc},grid:{color:'transparent'}},
+               y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'MSE',color:tc}}}}});
+  }
+
+  if(id==='metricas'){
+    new Chart(document.getElementById('cMetricas'),{type:'bar',
+      data:{labels:['Lineal','Ridge','Lasso','ElasticNet','SVR','RF','XGBoost'],
+            datasets:[
+              {label:'RMSE',data:[4.3,3.9,3.8,3.7,3.4,3.1,2.9],backgroundColor:P[4],borderRadius:4,yAxisID:'y1'},
+              {label:'R²',  data:[0.72,0.78,0.79,0.81,0.84,0.87,0.89],backgroundColor:P[0],borderRadius:4,yAxisID:'y2'}
+            ]},
+      options:{...bo,scales:{
+        x:{ticks:{color:tc},grid:{color:'transparent'}},
+        y1:{type:'linear',position:'left',ticks:{color:tc},grid:{color:gc},title:{display:true,text:'RMSE ↓',color:tc}},
+        y2:{type:'linear',position:'right',min:0.6,max:1,ticks:{color:tc},grid:{display:false},title:{display:true,text:'R² ↑',color:tc}}
+      }}});
+  }
+
+  if(id==='comparativa'){
+    const cats=['Interpretabilidad','Velocidad','Precisión','Robustez outliers','Alta dimensión','No lineal'];
+    const N=cats.length, angles=Array.from({length:N},(_,i)=>i*2*Math.PI/N).concat([0]);
+    const ms=[
+      {n:'Lineal',        v:[10,10,5,4,5,1],  c:P[0]},
+      {n:'Ridge/Lasso',   v:[8,9,6,5,9,2],    c:P[1]},
+      {n:'Random Forest', v:[5,6,8,8,7,9],    c:P[2]},
+      {n:'XGBoost',       v:[4,5,10,7,8,10],  c:P[3]},
+    ];
+    new Chart(document.getElementById('cRadar'),{type:'radar',
+      data:{labels:cats,datasets:ms.map(m=>({label:m.n,data:m.v,borderColor:m.c,backgroundColor:m.c+'18',borderWidth:2,pointBackgroundColor:m.c}))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+               scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:gc},pointLabels:{color:tc,font:{size:10}}}}}});
+    const leg=document.getElementById('radarLeg');
+    ms.forEach(m=>leg.innerHTML+=`<span><span class="ls" style="background:${m.c}"></span>${m.n}</span>`);
+  }
+}
+draw('intro');
+</script>
+</body>
+</html>
