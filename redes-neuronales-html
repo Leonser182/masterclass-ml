@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redes Neuronales — Masterclass</title>
+<style>
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;--accent:#A32D2D;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:16px;color:#378ADD;text-decoration:none}
+.nav-links{display:flex;gap:1.2rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);font-weight:500}
+.hero{background:linear-gradient(135deg,#450a0a,#A32D2D,#D4537E);color:white;padding:3rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;margin-bottom:.6rem}
+.hero p{opacity:.85;max-width:580px;margin:0 auto;font-size:15px}
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem;margin-bottom:2rem}
+.tab{padding:6px 14px;font-size:13px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.tab.active,.tab:hover{background:#FEF2F2;color:var(--accent);border-color:#FECACA;font-weight:500}
+.panel{display:none}.panel.on{display:block}
+h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
+h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+p,li{font-size:14px;color:var(--muted);line-height:1.7}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-bottom:1.25rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem}
+.cl{border-left:3px solid;border-radius:0 var(--radius) var(--radius) 0}
+.lb{border-left-color:#378ADD}.lp{border-left-color:#534AB7}.lt{border-left-color:#0F6E56}
+.la{border-left-color:#BA7517}.lr{border-left-color:#A32D2D}.lk{border-left-color:#D4537E}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px}
+.bg{background:#EAF3DE;color:#27500A}.br{background:#FCEBEB;color:#791F1F}
+.ba{background:#FAEEDA;color:#633806}.bb{background:#E6F1FB;color:#0C447C}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin:.35rem 0 .75rem}
+.fm{font-family:'Courier New',monospace;font-size:12px;background:#f1f5f9;padding:.6rem 1rem;border-radius:8px;color:#1e293b;margin:.4rem 0 .9rem;border:1px solid #e2e8f0;line-height:1.7;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1.25rem}
+th{text-align:left;padding:8px 10px;font-weight:600;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:#f9fafb}
+td{padding:8px 10px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:.65rem}
+.sn{min-width:24px;height:24px;border-radius:50%;background:#FEF2F2;border:1px solid #FECACA;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.cw{width:100%;margin:1rem 0}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:5px}
+.ls{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.tip{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#7f1d1d;margin-bottom:1rem}
+footer{background:#1e293b;color:#94a3b8;text-align:center;padding:1.5rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:#378ADD;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF;transition:all .2s}
+.back-btn:hover{background:#378ADD;color:white;border-color:#378ADD}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html">Regresión</a>
+    <a href="clasificacion.html">Clasificación</a>
+    <a href="no-supervisado.html">No Supervisado</a>
+    <a href="redes-neuronales.html" class="active">Redes Neuronales</a>
+    <a href="keras.html">Keras</a>
+  </div>
+</nav>
+<div class="hero">
+  <h1>🧠 Redes Neuronales</h1>
+  <p>Neurona · MLP · Forward pass · Backpropagation · CNN · LSTM · Autoencoder</p>
+</div>
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+  <div class="tabs">
+    <button class="tab active" onclick="show('intro',this)">🧠 Intro</button>
+    <button class="tab" onclick="show('arq',this)">🏗 Arquitectura</button>
+    <button class="tab" onclick="show('forward',this)">➡ Forward</button>
+    <button class="tab" onclick="show('back',this)">⬅ Backprop</button>
+    <button class="tab" onclick="show('activ',this)">⚡ Activaciones</button>
+    <button class="tab" onclick="show('reg',this)">🛡 Regularización</button>
+    <button class="tab" onclick="show('tipos',this)">🗂 Tipos</button>
+    <button class="tab" onclick="show('metricas',this)">📊 Diagnóstico</button>
+    <button class="tab" onclick="show('comparativa',this)">⚖️ Comparativa</button>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="panel on">
+    <h3>La neurona artificial</h3>
+    <p style="margin-bottom:1rem">Inspirada en el cerebro biológico. Recibe entradas x, las pondera con w, suma un sesgo b y aplica una función de activación no lineal.</p>
+    <div class="fm">y = f(w₁x₁ + w₂x₂ + … + wₙxₙ + b) = f(Wx + b)</div>
+    <h4 style="margin:.75rem 0 .5rem">El ciclo de entrenamiento</h4>
+    <div class="step"><div class="sn">1</div><p><strong>Forward pass:</strong> propagar entradas de capa en capa hasta la salida</p></div>
+    <div class="step"><div class="sn">2</div><p><strong>Calcular pérdida:</strong> comparar la salida predicha ŷ con el valor real y</p></div>
+    <div class="step"><div class="sn">3</div><p><strong>Backward pass:</strong> calcular gradientes mediante la regla de la cadena</p></div>
+    <div class="step"><div class="sn">4</div><p><strong>Actualizar pesos:</strong> w ← w − η·∂L/∂w (descenso por gradiente)</p></div>
+    <div class="step"><div class="sn">5</div><p><strong>Repetir</strong> sobre mini-batches hasta convergencia</p></div>
+    <div class="cw" style="height:250px"><canvas id="cIntro"></canvas></div>
+    <div class="leg" id="introLeg"></div>
+  </div>
+
+  <!-- ARQUITECTURA -->
+  <div id="arq" class="panel">
+    <h3>Diseño de arquitectura — paso a paso</h3>
+    <table style="margin-bottom:1.25rem">
+      <tr><th>Tarea</th><th>Capa de salida</th><th>Activación final</th><th>Pérdida</th></tr>
+      <tr><td>Clasificación binaria</td><td>1 neurona</td><td>Sigmoid</td><td>Binary Cross-Entropy</td></tr>
+      <tr><td>Clasificación multiclase</td><td>K neuronas</td><td>Softmax</td><td>Categorical Cross-Entropy</td></tr>
+      <tr><td>Regresión</td><td>1 neurona</td><td>Lineal (sin activ.)</td><td>MSE / MAE</td></tr>
+      <tr><td>Multilabel</td><td>K neuronas</td><td>Sigmoid por neurona</td><td>Binary CE por clase</td></tr>
+    </table>
+    <div class="g2">
+      <div class="card cl lp">
+        <h4>Inicialización He (Kaiming)</h4>
+        <p>Para ReLU. Corrige la mitad de neuronas muertas ajustando varianza.</p>
+        <div class="fm">W ~ N(0, 2/nᵢₙ)</div>
+      </div>
+      <div class="card cl lt">
+        <h4>Inicialización Xavier / Glorot</h4>
+        <p>Para tanh/sigmoid. Mantiene varianza constante entre capas.</p>
+        <div class="fm">W ~ U[−√(6/(nᵢₙ+nₒᵤₜ)), √(6/(nᵢₙ+nₒᵤₜ))]</div>
+      </div>
+    </div>
+    <h4 style="margin-bottom:.5rem">Reglas empíricas de diseño</h4>
+    <div class="step"><div class="sn">1</div><p>Capas ocultas: empezar con 2-3, aumentar si hay underfitting</p></div>
+    <div class="step"><div class="sn">2</div><p>Neuronas: potencias de 2 (64, 128, 256, 512) en forma de embudo</p></div>
+    <div class="step"><div class="sn">3</div><p>BatchNormalization después de cada capa densa oculta</p></div>
+    <div class="step"><div class="sn">4</div><p>Dropout antes de la capa de salida (rate 0.3–0.5)</p></div>
+    <div class="step"><div class="sn">5</div><p>Nunca inicializar todos los pesos a cero → romper simetría</p></div>
+  </div>
+
+  <!-- FORWARD -->
+  <div id="forward" class="panel">
+    <h3>Forward pass — propagación hacia adelante</h3>
+    <div class="card cl lb" style="margin-bottom:1rem">
+      <h4>Operación por capa</h4>
+      <div class="fm">Z⁽ˡ⁾ = W⁽ˡ⁾ · A⁽ˡ⁻¹⁾ + b⁽ˡ⁾     (preactivación)
+A⁽ˡ⁾ = f(Z⁽ˡ⁾)                     (postactivación)</div>
+      <p style="font-size:13px">W⁽ˡ⁾ ∈ ℝ^(nˡ × nˡ⁻¹) · A⁽⁰⁾ = X · A⁽ᴸ⁾ = ŷ</p>
+    </div>
+    <h4 style="margin-bottom:.5rem">Funciones de pérdida</h4>
+    <table>
+      <tr><th>Pérdida</th><th>Fórmula</th><th>Cuándo</th></tr>
+      <tr><td>MSE</td><td>(1/n)·Σ(yᵢ−ŷᵢ)²</td><td>Regresión — penaliza errores grandes</td></tr>
+      <tr><td>Binary CE</td><td>−[y·log(ŷ)+(1−y)·log(1−ŷ)]</td><td>Clasificación binaria</td></tr>
+      <tr><td>Categorical CE</td><td>−Σ yₖ·log(ŷₖ)</td><td>Clasificación multiclase</td></tr>
+      <tr><td>Huber</td><td>MSE si |e|≤δ, MAE si |e|>δ</td><td>Regresión robusta</td></tr>
+    </table>
+  </div>
+
+  <!-- BACKPROP -->
+  <div id="back" class="panel">
+    <h3>Backpropagation — regla de la cadena</h3>
+    <div class="card cl lp" style="margin-bottom:1rem">
+      <div class="fm">∂L/∂W⁽ˡ⁾ = ∂L/∂A⁽ˡ⁾ · ∂A⁽ˡ⁾/∂Z⁽ˡ⁾ · ∂Z⁽ˡ⁾/∂W⁽ˡ⁾
+
+δ⁽ˡ⁾ = (W⁽ˡ⁺¹⁾)ᵀ · δ⁽ˡ⁺¹⁾ ⊙ f'(Z⁽ˡ⁾)   ← retropropagar δ
+∇W⁽ˡ⁾ = δ⁽ˡ⁾ · (A⁽ˡ⁻¹⁾)ᵀ               ← actualizar pesos</div>
+    </div>
+    <div class="g2">
+      <div class="card cl lr">
+        <h4>Gradiente que desaparece</h4>
+        <p>Con sigmoid/tanh profunda: gradientes se multiplican por valores &lt;1 → llegan a 0 en capas anteriores.</p>
+        <div class="pills"><span class="badge br">Sigmoid saturada</span><span class="badge bg">Solución: ReLU</span></div>
+      </div>
+      <div class="card cl la">
+        <h4>Gradiente que explota</h4>
+        <p>Pesos grandes → gradientes se amplifican → NaN en el entrenamiento.</p>
+        <div class="pills"><span class="badge ba">Init. incorrecta</span><span class="badge bg">Solución: gradient clipping</span></div>
+      </div>
+    </div>
+    <div class="fm"># Gradient clipping en Keras/TensorFlow
+optimizer = keras.optimizers.Adam(
+    learning_rate=1e-3,
+    clipnorm=1.0      # limita la norma del gradiente
+)</div>
+  </div>
+
+  <!-- ACTIVACIONES -->
+  <div id="activ" class="panel">
+    <h3>Funciones de activación</h3>
+    <div class="g2">
+      <div class="card cl lb"><h4>ReLU</h4><div class="fm">f(x) = max(0, x)    f'(x) = 1 si x>0, 0 si x≤0</div><div class="pills"><span class="badge bg">Estándar de facto</span><span class="badge bg">Rápido</span><span class="badge br">Neuronas muertas</span></div></div>
+      <div class="card cl lp"><h4>Sigmoid</h4><div class="fm">f(x) = 1/(1+e⁻ˣ)    Rango (0,1)</div><div class="pills"><span class="badge bg">Salida binaria</span><span class="badge br">Gradiente desaparece</span></div></div>
+      <div class="card cl lt"><h4>Tanh</h4><div class="fm">f(x) = (eˣ−e⁻ˣ)/(eˣ+e⁻ˣ)    Rango (−1,1)</div><div class="pills"><span class="badge bg">Centrada en 0</span><span class="badge br">Gradiente desaparece</span></div></div>
+      <div class="card cl la"><h4>GELU</h4><div class="fm">f(x) = x·Φ(x)    usado en GPT, BERT</div><div class="pills"><span class="badge bb">LLMs / Transformers</span><span class="badge bg">Derivada suave</span></div></div>
+    </div>
+    <div class="cw" style="height:270px"><canvas id="cActiv"></canvas></div>
+    <div class="leg">
+      <span><span class="ls" style="background:#378ADD"></span>ReLU</span>
+      <span><span class="ls" style="background:#534AB7"></span>Sigmoid</span>
+      <span><span class="ls" style="background:#0F6E56"></span>Tanh</span>
+      <span><span class="ls" style="background:#BA7517"></span>Leaky ReLU</span>
+      <span><span class="ls" style="background:#A32D2D"></span>GELU</span>
+    </div>
+  </div>
+
+  <!-- REGULARIZACIÓN -->
+  <div id="reg" class="panel">
+    <h3>Regularización — evitar overfitting</h3>
+    <div class="g2">
+      <div class="card cl lb"><h4>L2 (Weight Decay)</h4><div class="fm">L_total = L + λ·Σwᵢ²</div><p style="font-size:13px">Encoge todos los pesos. λ típico: 1e-4 a 1e-2.</p></div>
+      <div class="card cl lp"><h4>Dropout</h4><div class="fm">Apagar neurona con prob. p en train
+Usar todas × (1−p) en test</div><p style="font-size:13px">p=0.3-0.5 densas, p=0.1-0.2 convolucionales.</p></div>
+      <div class="card cl lt"><h4>BatchNormalization</h4><div class="fm">x̂ᵢ = (xᵢ−μ_B)/√(σ²_B+ε)
+y = γx̂ + β</div><p style="font-size:13px">Normaliza por mini-batch. Acelera convergencia.</p></div>
+      <div class="card cl la"><h4>Early Stopping</h4><div class="fm">EarlyStopping(
+  monitor='val_loss',
+  patience=10,
+  restore_best_weights=True)</div></div>
+    </div>
+    <div class="cw" style="height:240px"><canvas id="cReg"></canvas></div>
+    <div class="leg"><span><span class="ls" style="background:#378ADD"></span>Train</span><span><span class="ls" style="background:#A32D2D"></span>Val sin regularización</span><span><span class="ls" style="background:#0F6E56"></span>Val con regularización</span></div>
+  </div>
+
+  <!-- TIPOS -->
+  <div id="tipos" class="panel">
+    <h3>Tipos de redes neuronales</h3>
+    <div class="card cl lb" style="margin-bottom:10px"><h4>MLP — Multilayer Perceptron</h4><p>Capas densas conectadas. Datos tabulares.</p><div class="fm">Input → Dense(ReLU) → BN → Dropout → Dense(Softmax)</div></div>
+    <div class="card cl lp" style="margin-bottom:10px"><h4>CNN — Convolucional</h4><p>Filtros espaciales compartidos. Invariante a traslaciones. Imágenes y series locales.</p><div class="fm">Conv2D → BN → ReLU → MaxPool → Flatten → Dense</div></div>
+    <div class="card cl lt" style="margin-bottom:10px"><h4>RNN / LSTM / GRU</h4><p>Estado oculto recurrente. NLP y series temporales.</p><div class="fm">hₜ = tanh(Wₕhₜ₋₁ + Wₓxₜ + b)    [RNN simple]
+LSTM: puertas forget, input, output + celda Cₜ</div></div>
+    <div class="card cl la" style="margin-bottom:10px"><h4>Transformer</h4><p>Atención multi-cabeza. Paralelizable. Base de GPT, BERT, ViT.</p><div class="fm">Attention(Q,K,V) = softmax(QKᵀ/√dₖ)·V</div></div>
+    <div class="card cl lk" style="margin-bottom:10px"><h4>Autoencoder / VAE</h4><p>Compresión al espacio latente z. Reconstrucción, anomalías, generación.</p><div class="fm">Encoder: x→z    Decoder: z→x̂    Loss: ‖x−x̂‖²</div></div>
+    <div class="cw" style="height:270px"><canvas id="cTipos"></canvas></div>
+    <div class="leg" id="tiposLeg"></div>
+  </div>
+
+  <!-- DIAGNÓSTICO -->
+  <div id="metricas" class="panel">
+    <h3>Diagnóstico de entrenamiento</h3>
+    <div class="g2" style="margin-bottom:1.25rem">
+      <div class="card cl lb"><h4>Underfitting</h4><p>Train loss alto. Val loss alto. Modelo muy simple o pocas épocas.</p><div class="pills"><span class="badge ba">Más parámetros</span><span class="badge ba">Más épocas</span><span class="badge ba">Menos regularización</span></div></div>
+      <div class="card cl lr"><h4>Overfitting</h4><p>Train loss bajo. Val loss sube. Brecha creciente. Memoriza el train set.</p><div class="pills"><span class="badge bg">Dropout</span><span class="badge bg">L2</span><span class="badge bg">Early stopping</span><span class="badge bg">Más datos</span></div></div>
+    </div>
+    <table>
+      <tr><th>Métrica</th><th>Descripción</th><th>Cuándo usar</th></tr>
+      <tr><td>Loss</td><td>Función optimizada durante entrenamiento</td><td>Siempre — diagnóstico principal</td></tr>
+      <tr><td>Accuracy</td><td>(TP+TN)/Total</td><td>Clases balanceadas</td></tr>
+      <tr><td>AUC-ROC / F1</td><td>Balance precision-recall</td><td>Clases desbalanceadas</td></tr>
+      <tr><td>Top-K accuracy</td><td>¿Está el real entre las K top?</td><td>ImageNet, multiclase grande</td></tr>
+      <tr><td>Perplexity</td><td>2^(-log₂P(x))</td><td>Modelos de lenguaje</td></tr>
+    </table>
+    <div class="cw" style="height:260px"><canvas id="cMetricas"></canvas></div>
+    <div class="leg"><span><span class="ls" style="background:#378ADD"></span>Train loss</span><span><span class="ls" style="background:#534AB7"></span>Val loss</span><span><span class="ls" style="background:#0F6E56"></span>Train acc</span><span><span class="ls" style="background:#BA7517"></span>Val acc</span></div>
+  </div>
+
+  <!-- COMPARATIVA -->
+  <div id="comparativa" class="panel">
+    <h3>¿Qué arquitectura usar?</h3>
+    <table style="margin-bottom:1.5rem">
+      <tr><th>Tipo de dato</th><th>Arquitectura</th><th>Activaciones</th></tr>
+      <tr><td>Tabular</td><td>MLP (2-4 capas)</td><td>ReLU ocultas, Sigmoid/Softmax salida</td></tr>
+      <tr><td>Imágenes</td><td>CNN (Conv→Pool→FC)</td><td>ReLU + Softmax</td></tr>
+      <tr><td>Secuencias/NLP</td><td>LSTM / GRU / Transformer</td><td>tanh (LSTM), GELU (Transformer)</td></tr>
+      <tr><td>Generativo</td><td>GAN / VAE</td><td>Sigmoid salida decoder</td></tr>
+      <tr><td>Anomalías</td><td>Autoencoder</td><td>MSE reconstrucción</td></tr>
+    </table>
+    <div class="cw" style="height:290px"><canvas id="cRadar"></canvas></div>
+    <div class="leg" id="radarLeg"></div>
+  </div>
+
+</div>
+<footer><p>Masterclass ML · <a href="index.html">← Volver al inicio</a></p></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const tc='rgba(0,0,0,.45)',gc='rgba(0,0,0,.07)';
+const P=['#378ADD','#534AB7','#0F6E56','#BA7517','#A32D2D','#639922','#D4537E'];
+const rendered={};
+function show(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('on');btn.classList.add('active');
+  setTimeout(()=>draw(id),50);
+}
+function draw(id){
+  if(rendered[id])return;rendered[id]=true;
+  const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+            scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}};
+
+  if(id==='intro'){
+    const eps=Array.from({length:40},(_,i)=>i+1);
+    const tl=eps.map(e=>Math.max(.08,2.2*Math.exp(-.07*e)+.08));
+    const vl=eps.map(e=>Math.max(.22,2.0*Math.exp(-.055*e)+.25));
+    new Chart(document.getElementById('cIntro'),{type:'line',data:{labels:eps,datasets:[
+      {data:tl,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false,label:'Train loss'},
+      {data:vl,borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3],label:'Val loss'},
+    ]},options:{...bo,scales:{x:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Época',color:tc}},
+      y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss',color:tc}}}}});
+    const leg=document.getElementById('introLeg');
+    [['#378ADD','Train loss'],['#A32D2D','Val loss']].forEach(([c,n])=>
+      leg.innerHTML+=`<span><span class="ls" style="background:${c}"></span>${n}</span>`);
+  }
+
+  if(id==='activ'){
+    const x=Array.from({length:100},(_,i)=>-5+i*.1);
+    const relu=x.map(v=>Math.max(0,v));
+    const sig=x.map(v=>1/(1+Math.exp(-v)));
+    const tanh=x.map(v=>Math.tanh(v));
+    const lrelu=x.map(v=>v>0?v:.1*v);
+    const gelu=x.map(v=>v*.5*(1+Math.tanh(Math.sqrt(2/Math.PI)*(v+.044715*v**3))));
+    new Chart(document.getElementById('cActiv'),{type:'line',data:{labels:x.map(v=>v.toFixed(1)),datasets:[
+      {data:relu, borderColor:P[0],borderWidth:2,pointRadius:0,fill:false},
+      {data:sig,  borderColor:P[1],borderWidth:2,pointRadius:0,fill:false},
+      {data:tanh, borderColor:P[2],borderWidth:2,pointRadius:0,fill:false},
+      {data:lrelu,borderColor:P[3],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3]},
+      {data:gelu, borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,borderDash:[2,4]},
+    ]},options:{...bo,scales:{x:{ticks:{color:tc,maxTicksLimit:11},grid:{color:gc}},y:{min:-1.5,max:3,ticks:{color:tc},grid:{color:gc}}}}});
+  }
+
+  if(id==='reg'){
+    const eps=Array.from({length:60},(_,i)=>i+1);
+    const tr=eps.map(e=>Math.max(.05,2.2*Math.exp(-.06*e)+.05));
+    const vn=eps.map(e=>e<20?tr[e-1]+.1:Math.min(2.5,tr[e-1]+.02*(e-20)+.1));
+    const vr=eps.map(e=>Math.max(.25,2.0*Math.exp(-.05*e)+.3));
+    new Chart(document.getElementById('cReg'),{type:'line',data:{labels:eps,datasets:[
+      {data:tr,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false},
+      {data:vn,borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3]},
+      {data:vr,borderColor:P[2],borderWidth:2,pointRadius:0,fill:false},
+    ]},options:{...bo,scales:{x:{ticks:{color:tc,maxTicksLimit:10},grid:{color:gc},title:{display:true,text:'Época',color:tc}},
+      y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss',color:tc}}}}});
+  }
+
+  if(id==='tipos'){
+    const cats=['Datos tabulares','Imágenes','Texto/NLP','Series temp.','Generación','Interpretabilidad'];
+    const ms=[
+      {n:'MLP',        v:[9,4,5,6,3,8],  c:P[0]},
+      {n:'CNN',        v:[4,10,5,5,6,6], c:P[1]},
+      {n:'LSTM/GRU',   v:[4,3,8,9,4,5], c:P[2]},
+      {n:'Transformer',v:[5,7,10,8,7,4], c:P[3]},
+      {n:'VAE/GAN',    v:[3,5,5,4,10,3], c:P[4]},
+    ];
+    new Chart(document.getElementById('cTipos'),{type:'radar',data:{labels:cats,
+      datasets:ms.map(m=>({label:m.n,data:m.v,borderColor:m.c,backgroundColor:m.c+'15',borderWidth:2,pointBackgroundColor:m.c}))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+               scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:gc},pointLabels:{color:tc,font:{size:10}}}}}});
+    const leg=document.getElementById('tiposLeg');
+    ms.forEach(m=>leg.innerHTML+=`<span><span class="ls" style="background:${m.c}"></span>${m.n}</span>`);
+  }
+
+  if(id==='metricas'){
+    const eps=Array.from({length:50},(_,i)=>i+1);
+    const tl=eps.map(e=>Math.max(.08,2.0*Math.exp(-.07*e)+.08));
+    const vl=eps.map(e=>Math.max(.25,1.9*Math.exp(-.055*e)+.28));
+    const ta=eps.map(e=>Math.min(.99,.4+.58*(1-Math.exp(-.07*e))));
+    const va=eps.map(e=>Math.min(.94,.38+.54*(1-Math.exp(-.055*e))));
+    new Chart(document.getElementById('cMetricas'),{type:'line',data:{labels:eps,datasets:[
+      {data:tl,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false,yAxisID:'y'},
+      {data:vl,borderColor:P[1],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3],yAxisID:'y'},
+      {data:ta,borderColor:P[2],borderWidth:2,pointRadius:0,fill:false,yAxisID:'y2'},
+      {data:va,borderColor:P[3],borderWidth:2,pointRadius:0,fill:false,borderDash:[2,4],yAxisID:'y2'},
+    ]},options:{...bo,scales:{
+      x:{ticks:{color:tc,maxTicksLimit:10},grid:{color:gc},title:{display:true,text:'Época',color:tc}},
+      y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss',color:tc}},
+      y2:{type:'linear',position:'right',min:0,max:1,ticks:{color:tc},grid:{display:false},title:{display:true,text:'Accuracy',color:tc}}
+    }}});
+  }
+
+  if(id==='comparativa'){
+    const cats=['Interpretabilidad','Velocidad entren.','Precisión tabular','Robustez outliers','Alta dimensión','No lineal'];
+    const ms=[
+      {n:'MLP',         v:[7,9,7,6,7,6],  c:P[0]},
+      {n:'CNN',         v:[5,8,8,7,8,9],  c:P[1]},
+      {n:'LSTM/GRU',    v:[4,5,7,6,7,8],  c:P[2]},
+      {n:'Transformer', v:[3,4,9,6,9,10], c:P[3]},
+      {n:'Autoencoder', v:[4,6,6,8,7,8],  c:P[4]},
+    ];
+    new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:cats,
+      datasets:ms.map(m=>({label:m.n,data:m.v,borderColor:m.c,backgroundColor:m.c+'15',borderWidth:2,pointBackgroundColor:m.c}))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+               scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:gc},pointLabels:{color:tc,font:{size:10}}}}}});
+    const leg=document.getElementById('radarLeg');
+    ms.forEach(m=>leg.innerHTML+=`<span><span class="ls" style="background:${m.c}"></span>${m.n}</span>`);
+  }
+}
+draw('intro');
+</script>
+</body>
+</html>
