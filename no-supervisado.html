@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aprendizaje No Supervisado — Masterclass</title>
+<style>
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;--accent:#BA7517;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:16px;color:#378ADD;text-decoration:none}
+.nav-links{display:flex;gap:1.2rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);font-weight:500}
+.hero{background:linear-gradient(135deg,#451a03,#BA7517,#D4537E);color:white;padding:3rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;margin-bottom:.6rem}
+.hero p{opacity:.85;max-width:580px;margin:0 auto;font-size:15px}
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem;margin-bottom:2rem}
+.tab{padding:6px 14px;font-size:13px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.tab.active,.tab:hover{background:#FEF3C7;color:var(--accent);border-color:#FDE68A;font-weight:500}
+.panel{display:none}.panel.on{display:block}
+h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
+h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+p,li{font-size:14px;color:var(--muted);line-height:1.7}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-bottom:1.25rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem}
+.cl{border-left:3px solid;border-radius:0 var(--radius) var(--radius) 0}
+.lb{border-left-color:#378ADD}.lp{border-left-color:#534AB7}.lt{border-left-color:#0F6E56}
+.la{border-left-color:#BA7517}.lr{border-left-color:#A32D2D}.lk{border-left-color:#D4537E}.lg{border-left-color:#639922}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px}
+.bg{background:#EAF3DE;color:#27500A}.br{background:#FCEBEB;color:#791F1F}
+.ba{background:#FAEEDA;color:#633806}.bb{background:#E6F1FB;color:#0C447C}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin:.35rem 0 .75rem}
+.fm{font-family:'Courier New',monospace;font-size:12px;background:#f1f5f9;padding:.6rem 1rem;border-radius:8px;color:#1e293b;margin:.4rem 0 .9rem;border:1px solid #e2e8f0;line-height:1.7;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1.25rem}
+th{text-align:left;padding:8px 10px;font-weight:600;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:#f9fafb}
+td{padding:8px 10px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:.65rem}
+.sn{min-width:24px;height:24px;border-radius:50%;background:#FEF3C7;border:1px solid #FDE68A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.cw{width:100%;margin:1rem 0}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:5px}
+.ls{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#78350f;margin-bottom:1rem}
+footer{background:#1e293b;color:#94a3b8;text-align:center;padding:1.5rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:#378ADD;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF;transition:all .2s}
+.back-btn:hover{background:#378ADD;color:white;border-color:#378ADD}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html">Regresión</a>
+    <a href="clasificacion.html">Clasificación</a>
+    <a href="no-supervisado.html" class="active">No Supervisado</a>
+    <a href="redes-neuronales.html">Redes Neuronales</a>
+    <a href="keras.html">Keras</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>🔵 Aprendizaje No Supervisado</h1>
+  <p>PCA · t-SNE · UMAP · K-Means · DBSCAN · Jerárquico · GMM · Anomalías</p>
+</div>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('intro',this)">🎯 Intro</button>
+    <button class="tab" onclick="show('reduc',this)">📉 Reducción dim.</button>
+    <button class="tab" onclick="show('cluster',this)">🔵 Clustering</button>
+    <button class="tab" onclick="show('prepro',this)">🔧 Preprocesamiento</button>
+    <button class="tab" onclick="show('seleccion',this)">⚙️ Selección K</button>
+    <button class="tab" onclick="show('metricas',this)">📊 Métricas</button>
+    <button class="tab" onclick="show('comparativa',this)">⚖️ Comparativa</button>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="panel on">
+    <h3>Aprendizaje no supervisado</h3>
+    <p style="margin-bottom:1rem">Sin etiquetas. El objetivo es <strong>descubrir estructura latente</strong> en los datos: grupos naturales, representaciones compactas o patrones ocultos.</p>
+    <div class="g2">
+      <div class="card cl lb"><h4>Reducción dimensional</h4><p>Proyectar datos de alta dimensión a un espacio reducido preservando la estructura.</p><div class="pills"><span class="badge bb">PCA</span><span class="badge bb">t-SNE</span><span class="badge bb">UMAP</span></div></div>
+      <div class="card cl lp"><h4>Clustering</h4><p>Agrupar observaciones similares sin etiquetas. Cada algoritmo define "similitud" diferente.</p><div class="pills"><span class="badge bb">K-Means</span><span class="badge bb">DBSCAN</span><span class="badge bb">GMM</span></div></div>
+      <div class="card cl lt"><h4>Detección de anomalías</h4><p>Identificar observaciones que no siguen el patrón general.</p><div class="pills"><span class="badge bb">Isolation Forest</span><span class="badge bb">LOF</span></div></div>
+    </div>
+    <div class="tip">💡 <strong>Regla de oro:</strong> escalar siempre con StandardScaler antes de cualquier algoritmo de distancia (PCA, K-Means, DBSCAN, t-SNE).</div>
+    <div class="cw" style="height:250px"><canvas id="cIntro"></canvas></div>
+  </div>
+
+  <!-- REDUCCIÓN -->
+  <div id="reduc" class="panel">
+    <h3>Técnicas de reducción dimensional</h3>
+    <div class="card cl lb" style="margin-bottom:10px">
+      <h4>PCA — Análisis de Componentes Principales</h4>
+      <p>Descomposición espectral de la covarianza. Transforma lineal ortogonal. Componentes ordenados por varianza explicada.</p>
+      <div class="fm">C = (1/n)XᵀX  →  C·vₖ = λₖ·vₖ  →  PC_k = X·vₖ</div>
+      <div class="pills"><span class="badge bb">Lineal</span><span class="badge bg">Muy rápido</span><span class="badge bg">Determinista</span><span class="badge br">No captura no-linealidad</span></div>
+    </div>
+    <div class="card cl lp" style="margin-bottom:10px">
+      <h4>t-SNE</h4>
+      <p>Preserva distancias locales entre vecinos. Excelente para visualización. No proyectable a nuevos datos.</p>
+      <div class="fm">min KL(P‖Q)   q(ij) ∝ (1+‖yᵢ−yⱼ‖²)⁻¹</div>
+      <div class="pills"><span class="badge bg">✓ Visualización 2D</span><span class="badge br">✗ No usar como preprocessing</span><span class="badge br">✗ Lento O(n²)</span></div>
+    </div>
+    <div class="card cl lt" style="margin-bottom:10px">
+      <h4>UMAP</h4>
+      <p>Preserva estructura local Y global. Más rápido que t-SNE y proyectable a nuevos datos.</p>
+      <div class="fm">Grafo k-NN ponderado → embedding de baja dimensión</div>
+      <div class="pills"><span class="badge bg">✓ Rápido</span><span class="badge bg">✓ Proyectable</span><span class="badge bg">✓ Local + global</span></div>
+    </div>
+    <div class="fm">from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+# pip install umap-learn
+import umap
+
+# PCA — cuántos componentes para 95% de varianza
+pca = PCA(n_components=0.95, random_state=42)
+X_pca = pca.fit_transform(X_scaled)
+print(f"Dimensiones: {X_scaled.shape[1]} → {X_pca.shape[1]}")
+print(f"Varianza explicada: {pca.explained_variance_ratio_.sum()*100:.1f}%")</div>
+  </div>
+
+  <!-- CLUSTERING -->
+  <div id="cluster" class="panel">
+    <h3>Algoritmos de clustering</h3>
+    <div class="card cl lb" style="margin-bottom:10px">
+      <h4>K-Means</h4>
+      <div class="fm">min Σᵢ Σₓ∈Cᵢ ‖x − μᵢ‖²
+E-step: asignar al centroide más cercano
+M-step: μᵢ = media(Cᵢ)</div>
+      <div class="pills"><span class="badge bg">✓ Rápido O(nkd)</span><span class="badge bg">✓ Escalable</span><span class="badge br">✗ K debe definirse</span><span class="badge br">✗ Asume clusters esféricos</span></div>
+    </div>
+    <div class="card cl lp" style="margin-bottom:10px">
+      <h4>DBSCAN</h4>
+      <div class="fm">Core point: |N_ε(p)| ≥ MinPts
+Cluster = conjunto de core points densamente conectados
+Ruido = puntos no alcanzables (etiqueta -1)</div>
+      <div class="pills"><span class="badge bg">✓ K automático</span><span class="badge bg">✓ Detecta outliers</span><span class="badge br">✗ ε y MinPts sensibles</span></div>
+    </div>
+    <div class="card cl lt" style="margin-bottom:10px">
+      <h4>GMM — Gaussian Mixture Models</h4>
+      <div class="fm">p(x) = Σₖ πₖ · N(x | μₖ, Σₖ)
+EM: E-step (probabilidades) + M-step (parámetros)</div>
+      <div class="pills"><span class="badge bb">✓ Probabilístico</span><span class="badge bg">✓ Clusters elípticos</span><span class="badge br">✗ K debe definirse</span></div>
+    </div>
+    <div class="card cl la" style="margin-bottom:10px">
+      <h4>Clustering Jerárquico (Agglomerative)</h4>
+      <div class="fm">Linkage: single=min(d), complete=max(d)
+           average=mean(d), ward=min(varianza)</div>
+      <div class="pills"><span class="badge bg">✓ Dendrograma</span><span class="badge bg">✓ Sin K fijo</span><span class="badge br">✗ Lento O(n²)</span></div>
+    </div>
+  </div>
+
+  <!-- PREPROCESAMIENTO -->
+  <div id="prepro" class="panel">
+    <h3>Preprocesamiento para no supervisado</h3>
+    <p style="margin-bottom:1rem">Más crítico que en supervisado: no hay etiquetas que compensen errores en los datos.</p>
+    <table style="margin-bottom:1.25rem">
+      <tr><th>Técnica</th><th>Por qué es crítica</th><th>Algoritmos afectados</th></tr>
+      <tr><td>StandardScaler</td><td>Features con diferente escala distorsionan distancias</td><td>K-Means, DBSCAN, PCA, t-SNE, UMAP</td></tr>
+      <tr><td>RobustScaler</td><td>Resistente a outliers que inflan la escala</td><td>Mismos + con outliers</td></tr>
+      <tr><td>Imputación</td><td>La mayoría de algoritmos no toleran NaN</td><td>Todos</td></tr>
+      <tr><td>OHE / Gower</td><td>Distancias mixtas para datos categóricos</td><td>K-Means, DBSCAN</td></tr>
+    </table>
+    <div class="g2">
+      <div class="card cl lr">
+        <h4>Impacto de outliers en K-Means</h4>
+        <p>Los outliers desplazan los centroides y crean clusters espurios. Tratar antes o usar DBSCAN.</p>
+      </div>
+      <div class="card cl lb">
+        <h4>Impacto de outliers en PCA</h4>
+        <p>Inflan la varianza y distorsionan los componentes. Usar Robust PCA o log-transform previo.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SELECCIÓN K -->
+  <div id="seleccion" class="panel">
+    <h3>Selección del K óptimo</h3>
+    <div class="g2">
+      <div class="card cl lb">
+        <h4>Elbow Method (Inercia)</h4>
+        <p>Graficando WCSS vs K, buscar el "codo" donde la disminución se estabiliza.</p>
+        <div class="fm">WCSS = Σᵢ Σₓ∈Cᵢ ‖x − μᵢ‖²</div>
+      </div>
+      <div class="card cl lp">
+        <h4>Silhouette Score</h4>
+        <p>Para cada punto: s = (b−a)/max(a,b). Rango [−1, 1]. Elegir K que maximiza la media.</p>
+        <div class="fm">from sklearn.metrics import silhouette_score
+s = silhouette_score(X, labels)</div>
+      </div>
+      <div class="card cl lt">
+        <h4>BIC / AIC para GMM</h4>
+        <p>Criterios de información que penalizan la complejidad. Elegir K que minimiza BIC.</p>
+        <div class="fm">gmm = GaussianMixture(n_components=k)
+gmm.fit(X)
+bic = gmm.bic(X)</div>
+      </div>
+      <div class="card cl la">
+        <h4>K-distancia para DBSCAN</h4>
+        <p>Ordenar distancias al k-ésimo vecino. El codo de la curva indica el eps óptimo.</p>
+      </div>
+    </div>
+    <div class="cw" style="height:260px"><canvas id="cElbow"></canvas></div>
+    <div class="leg">
+      <span><span class="ls" style="background:#378ADD88"></span>Inercia (↓)</span>
+      <span><span class="ls" style="background:#BA7517"></span>Silhouette (↑) — óptimo K=4</span>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div id="metricas" class="panel">
+    <h3>Evaluación — sin etiquetas</h3>
+    <h4 style="margin-bottom:.5rem">Métricas internas</h4>
+    <table style="margin-bottom:1.25rem">
+      <tr><th>Métrica</th><th>Fórmula</th><th>Cuándo</th></tr>
+      <tr><td>Silhouette Score</td><td>s(i)=(b(i)−a(i))/max(a,b) ∈ [−1,1]</td><td>Siempre. 1=perfecto</td></tr>
+      <tr><td>Davies-Bouldin</td><td>(1/k)·Σᵢ max[(σᵢ+σⱼ)/d(μᵢ,μⱼ)]</td><td>Menor es mejor</td></tr>
+      <tr><td>Calinski-Harabasz</td><td>[SS_B/(k−1)] / [SS_W/(n−k)]</td><td>Mayor es mejor. Rápido</td></tr>
+      <tr><td>Inercia (WCSS)</td><td>Σᵢ Σₓ∈Cᵢ ‖x − μᵢ‖²</td><td>Solo comparar mismo K</td></tr>
+    </table>
+    <h4 style="margin-bottom:.5rem">Métricas externas (con etiquetas de referencia)</h4>
+    <table>
+      <tr><th>Métrica</th><th>Rango</th><th>Descripción</th></tr>
+      <tr><td>Adjusted Rand Index (ARI)</td><td>[−1, 1]</td><td>Coincidencia corregida por azar</td></tr>
+      <tr><td>Normalized Mutual Info (NMI)</td><td>[0, 1]</td><td>Información mutua normalizada</td></tr>
+      <tr><td>Homogeneity</td><td>[0, 1]</td><td>Cada cluster contiene solo una clase</td></tr>
+    </table>
+    <div class="cw" style="height:260px"><canvas id="cMetricas"></canvas></div>
+    <div class="leg" id="metLeg"></div>
+  </div>
+
+  <!-- COMPARATIVA -->
+  <div id="comparativa" class="panel">
+    <h3>Comparativa y guía de selección</h3>
+    <table style="margin-bottom:1.25rem">
+      <tr><th>Algoritmo</th><th>K requerido</th><th>Formas</th><th>Outliers</th><th>Contexto ideal</th></tr>
+      <tr><td>K-Means</td><td>Sí</td><td>Esférico</td><td>Sensible</td><td>Clusters bien separados, N grande</td></tr>
+      <tr><td>DBSCAN</td><td>No</td><td>Arbitrario</td><td>Detecta</td><td>Datos geoespaciales, ruido esperado</td></tr>
+      <tr><td>Jerárquico</td><td>Flexible</td><td>Variable</td><td>Sensible</td><td>Exploración, N pequeño</td></tr>
+      <tr><td>GMM</td><td>Sí</td><td>Elíptico</td><td>Moderado</td><td>Clusters de diferente tamaño/forma</td></tr>
+      <tr><td>Spectral</td><td>Sí</td><td>No convexo</td><td>Moderado</td><td>Forma irregular, grafos</td></tr>
+    </table>
+    <div class="step"><div class="sn">1</div><p>Escalar SIEMPRE antes de cualquier algoritmo de distancia</p></div>
+    <div class="step"><div class="sn">2</div><p>Usar PCA primero para eliminar ruido y reducir costo de t-SNE/UMAP</p></div>
+    <div class="step"><div class="sn">3</div><p>Visualización: t-SNE o UMAP. Preprocessing: PCA o UMAP</p></div>
+    <div class="step"><div class="sn">4</div><p>Empezar con K-Means + Elbow. Si hay formas raras → DBSCAN o Spectral</p></div>
+    <div class="step"><div class="sn">5</div><p>Validar con Silhouette + inspección visual siempre</p></div>
+    <div class="cw" style="height:300px"><canvas id="cRadar"></canvas></div>
+    <div class="leg" id="radarLeg"></div>
+  </div>
+
+</div>
+
+<footer><p>Masterclass ML · <a href="index.html">← Volver al inicio</a></p></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const tc='rgba(0,0,0,.45)',gc='rgba(0,0,0,.07)';
+const P=['#378ADD','#534AB7','#0F6E56','#BA7517','#A32D2D','#639922','#D4537E'];
+const rendered={};
+function show(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('on');btn.classList.add('active');
+  setTimeout(()=>draw(id),50);
+}
+function draw(id){
+  if(rendered[id])return;rendered[id]=true;
+  const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+            scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}};
+  if(id==='intro'){
+    const rng=(s)=>{let v=s;return()=>{v=(v*1664525+1013904223)&0x7fffffff;return v/0x7fffffff;}};
+    const r=rng(42),n=40;
+    const centers=[[-3,-2],[3,2],[-2,3],[2,-3]];
+    new Chart(document.getElementById('cIntro'),{type:'scatter',data:{datasets:centers.map((c,i)=>({
+      label:'C'+i,backgroundColor:P[i]+'88',pointRadius:5,
+      data:Array.from({length:n},()=>({x:c[0]+(r()-.5)*2.5,y:c[1]+(r()-.5)*2.5}))
+    }))},options:{...bo,plugins:{legend:{display:false}}}});
+  }
+  if(id==='seleccion'){
+    const ks=Array.from({length:9},(_,i)=>i+2);
+    const inercia=[4200,3100,2400,2050,1780,1600,1500,1450,1420];
+    const silh=[0.32,0.41,0.55,0.64,0.58,0.51,0.48,0.45,0.43];
+    new Chart(document.getElementById('cElbow'),{type:'bar',data:{labels:ks.map(k=>'K='+k),datasets:[
+      {label:'Inercia',data:inercia,backgroundColor:P[0]+'88',borderRadius:4,yAxisID:'y'},
+      {label:'Silhouette',data:silh.map(s=>+s.toFixed(2)),type:'line',borderColor:P[3],borderWidth:2.5,pointBackgroundColor:P[3],pointRadius:5,fill:false,yAxisID:'y2'},
+    ]},options:{...bo,scales:{
+      x:{ticks:{color:tc},grid:{color:'transparent'}},
+      y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Inercia',color:tc}},
+      y2:{type:'linear',position:'right',min:0,max:1,ticks:{color:tc},grid:{display:false},title:{display:true,text:'Silhouette',color:tc}}
+    }}});
+  }
+  if(id==='metricas'){
+    const methods=['K-Means','DBSCAN','Jerárquico','GMM','Spectral'];
+    const silh=[0.64,0.71,0.58,0.67,0.69];
+    const ari=[0.72,0.81,0.64,0.74,0.78];
+    const db=[0.48,0.38,0.55,0.43,0.41];
+    new Chart(document.getElementById('cMetricas'),{type:'bar',data:{labels:methods,datasets:[
+      {label:'Silhouette ↑',data:silh,backgroundColor:P[0]+'99',borderRadius:4},
+      {label:'ARI ↑',       data:ari, backgroundColor:P[2]+'99',borderRadius:4},
+      {label:'1−DB ↑',     data:db.map(v=>+(1-v).toFixed(2)),backgroundColor:P[3]+'99',borderRadius:4},
+    ]},options:{...bo,scales:{x:{ticks:{color:tc,maxRotation:15},grid:{color:'transparent'}},y:{min:0,max:1,ticks:{color:tc},grid:{color:gc}}}}});
+    const leg=document.getElementById('metLeg');
+    [['#378ADD','Silhouette (↑)'],['#0F6E56','ARI (↑)'],['#BA7517','1−Davies-Bouldin (↑)']].forEach(([c,n])=>
+      leg.innerHTML+=`<span><span class="ls" style="background:${c}99"></span>${n}</span>`);
+  }
+  if(id==='comparativa'){
+    const cats=['Velocidad','Escala N grande','No lineal','Proyectable','Preserva global','Interpretabilidad'];
+    const ms=[
+      {n:'PCA',      v:[10,10,1,10,8,10],c:P[0]},
+      {n:'t-SNE',    v:[3,3,9,1,5,5],   c:P[2]},
+      {n:'UMAP',     v:[7,8,9,8,8,5],   c:P[3]},
+      {n:'K-Means',  v:[9,10,3,6,8,7],  c:P[4]},
+      {n:'DBSCAN',   v:[7,6,9,5,7,6],   c:P[5]},
+    ];
+    new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:cats,
+      datasets:ms.map(m=>({label:m.n,data:m.v,borderColor:m.c,backgroundColor:m.c+'15',borderWidth:2,pointBackgroundColor:m.c}))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+               scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:gc},pointLabels:{color:tc,font:{size:10}}}}}});
+    const leg=document.getElementById('radarLeg');
+    ms.forEach(m=>leg.innerHTML+=`<span><span class="ls" style="background:${m.c}"></span>${m.n}</span>`);
+  }
+}
+draw('intro');
+</script>
+</body>
+</html>
