@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clasificación en ML — Masterclass</title>
+<style>
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;--accent:#0F6E56;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:16px;color:#378ADD;text-decoration:none}
+.nav-links{display:flex;gap:1.2rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);font-weight:500}
+.hero{background:linear-gradient(135deg,#064e3b,#0F6E56,#639922);color:white;padding:3rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;margin-bottom:.6rem}
+.hero p{opacity:.85;max-width:580px;margin:0 auto;font-size:15px}
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem;margin-bottom:2rem}
+.tab{padding:6px 14px;font-size:13px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.tab.active,.tab:hover{background:#E7F5EF;color:var(--accent);border-color:#A7D7C5;font-weight:500}
+.panel{display:none}.panel.on{display:block}
+h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
+h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+p,li{font-size:14px;color:var(--muted);line-height:1.7}
+ul{padding-left:1.2rem;margin-bottom:1rem}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-bottom:1.25rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem}
+.cl{border-left:3px solid;border-radius:0 var(--radius) var(--radius) 0}
+.lb{border-left-color:#378ADD}.lp{border-left-color:#534AB7}.lt{border-left-color:#0F6E56}
+.la{border-left-color:#BA7517}.lr{border-left-color:#A32D2D}.lk{border-left-color:#D4537E}.lg{border-left-color:#639922}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px}
+.bg{background:#EAF3DE;color:#27500A}.br{background:#FCEBEB;color:#791F1F}
+.ba{background:#FAEEDA;color:#633806}.bb{background:#E6F1FB;color:#0C447C}
+.bt{background:#E1F5EE;color:#085041}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin:.35rem 0 .75rem}
+.fm{font-family:'Courier New',monospace;font-size:12px;background:#f1f5f9;padding:.6rem 1rem;border-radius:8px;color:#1e293b;margin:.4rem 0 .9rem;border:1px solid #e2e8f0;line-height:1.7;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1.25rem}
+th{text-align:left;padding:8px 10px;font-weight:600;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:#f9fafb}
+td{padding:8px 10px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:.65rem}
+.sn{min-width:24px;height:24px;border-radius:50%;background:#E7F5EF;border:1px solid #A7D7C5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.cw{width:100%;margin:1rem 0}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:5px}
+.ls{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.tip{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#14532d;margin-bottom:1rem}
+.warn{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#78350f;margin-bottom:1rem}
+/* Confusion matrix */
+.cm-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;width:220px;margin:1rem auto}
+.cm-cell{height:65px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;font-size:13px;font-weight:500}
+footer{background:#1e293b;color:#94a3b8;text-align:center;padding:1.5rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:#378ADD;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF;transition:all .2s}
+.back-btn:hover{background:#378ADD;color:white;border-color:#378ADD}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html">Regresión</a>
+    <a href="clasificacion.html" class="active">Clasificación</a>
+    <a href="no-supervisado.html">No Supervisado</a>
+    <a href="redes-neuronales.html">Redes Neuronales</a>
+    <a href="keras.html">Keras</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>🎯 Clasificación en Machine Learning</h1>
+  <p>Logística · SVM · KNN · Árboles · Naive Bayes · Random Forest · XGBoost</p>
+</div>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('intro',this)">🎯 Intro</button>
+    <button class="tab" onclick="show('tipos',this)">📐 Tipos</button>
+    <button class="tab" onclick="show('prepro',this)">🔧 Preprocesamiento</button>
+    <button class="tab" onclick="show('hiperparam',this)">⚙️ Hiperparámetros</button>
+    <button class="tab" onclick="show('cv',this)">🔁 Validación cruzada</button>
+    <button class="tab" onclick="show('metricas',this)">📊 Métricas</button>
+    <button class="tab" onclick="show('comparativa',this)">⚖️ Comparativa</button>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="panel on">
+    <h3>¿Qué es la clasificación en ML?</h3>
+    <p style="margin-bottom:1rem">La clasificación predice a qué <strong>clase discreta</strong> pertenece una observación. La función f(X) mapea vectores de entrada a etiquetas de clase.</p>
+    <div class="fm">ŷ = argmax P(y=k | X)    k ∈ {clase₁, clase₂, …, claseₙ}</div>
+    <div class="g2">
+      <div class="card cl lb">
+        <h4>Binaria</h4>
+        <p>Dos clases. Spam/no spam, enfermo/sano. La mayoría de métricas están diseñadas aquí.</p>
+        <div class="pills"><span class="badge bb">y ∈ {0,1}</span><span class="badge bg">Umbral 0.5</span></div>
+      </div>
+      <div class="card cl lp">
+        <h4>Multiclase</h4>
+        <p>Tres o más clases excluyentes. Dígitos 0-9, especie de flor, categoría de producto.</p>
+        <div class="pills"><span class="badge bb">Softmax</span><span class="badge bg">OvR / OvO</span></div>
+      </div>
+      <div class="card cl lt">
+        <h4>Multilabel</h4>
+        <p>Una muestra pertenece a múltiples clases. Géneros de película, etiquetas de imagen.</p>
+        <div class="pills"><span class="badge bb">y ∈ {0,1}ᴷ</span><span class="badge bg">Sigmoid</span></div>
+      </div>
+      <div class="card cl la">
+        <h4>Desbalance de clases</h4>
+        <p>La clase minoritaria es la más importante. Fraude, enfermedad rara. Requiere estrategias especiales.</p>
+        <div class="pills"><span class="badge ba">SMOTE</span><span class="badge ba">class_weight</span></div>
+      </div>
+    </div>
+    <div class="warn">⚠️ <strong>Accuracy en datos desbalanceados es una métrica mentirosa.</strong> Un modelo que predice siempre la clase mayoritaria tiene accuracy alto pero es inútil. Usa siempre F1, ROC-AUC o PR-AUC.</div>
+    <div class="cw" style="height:260px"><canvas id="cIntro"></canvas></div>
+  </div>
+
+  <!-- TIPOS -->
+  <div id="tipos" class="panel">
+    <h3>Tipos de clasificadores</h3>
+    <div class="card cl lb" style="margin-bottom:10px">
+      <h4>1. Regresión Logística</h4>
+      <div class="fm">P(y=1|X) = σ(Xβ) = 1/(1 + e^{-Xβ})
+Loss: −[y·log(p) + (1−y)·log(1−p)]</div>
+      <div class="pills"><span class="badge bg">✓ Interpretable</span><span class="badge bg">✓ Probabilidades calibradas</span><span class="badge br">✗ Solo fronteras lineales</span></div>
+    </div>
+    <div class="card cl lp" style="margin-bottom:10px">
+      <h4>2. SVM — Support Vector Machine</h4>
+      <div class="fm">min ½‖w‖² + C·Σξᵢ    s.t. yᵢ(w·xᵢ+b) ≥ 1−ξᵢ
+kernel K(x,x') = exp(−γ‖x−x'‖²)   [RBF]</div>
+      <div class="pills"><span class="badge bg">✓ Alta dimensión</span><span class="badge bg">✓ Margen máximo</span><span class="badge br">✗ Lento con N grande</span></div>
+    </div>
+    <div class="card cl lt" style="margin-bottom:10px">
+      <h4>3. K-Nearest Neighbors (KNN)</h4>
+      <div class="fm">ŷ = argmax_c Σ 𝟙[yᵢ=c]   para los K vecinos más cercanos</div>
+      <div class="pills"><span class="badge bg">✓ No paramétrico</span><span class="badge ba">~ Sensible a K y escala</span><span class="badge br">✗ Lento en predicción</span></div>
+    </div>
+    <div class="card cl la" style="margin-bottom:10px">
+      <h4>4. Árboles de Decisión</h4>
+      <div class="fm">Gini = 1 − Σpₖ²
+Entropía = −Σpₖ·log₂(pₖ)
+Ganancia = H(padre) − Σ wᵢH(hijo)</div>
+      <div class="pills"><span class="badge bg">✓ Interpretable</span><span class="badge bg">✓ Sin escalado</span><span class="badge br">✗ Overfitting sin poda</span></div>
+    </div>
+    <div class="card cl lg" style="margin-bottom:10px">
+      <h4>5. Random Forest y Gradient Boosting</h4>
+      <div class="fm">RF: ŷ = mode{T₁(x), T₂(x), …, Tₙ(x)}
+GB: F_m(x) = F_{m−1}(x) + η·h_m(x)</div>
+      <div class="pills"><span class="badge bg">✓ Alta precisión</span><span class="badge bg">✓ Importancia features</span><span class="badge ba">~ Menos interpretable</span></div>
+    </div>
+    <div class="cw" style="height:280px"><canvas id="cTipos"></canvas></div>
+  </div>
+
+  <!-- PREPROCESAMIENTO -->
+  <div id="prepro" class="panel">
+    <h3>Preprocesamiento para clasificación</h3>
+
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Desbalance de clases — crítico</h4>
+    <div class="g2" style="margin-bottom:1.25rem">
+      <div class="card cl lr">
+        <h4>SMOTE — Oversampling</h4>
+        <p>Genera ejemplos sintéticos interpolando entre vecinos de la clase minoritaria.</p>
+        <div class="fm">x_new = xᵢ + λ·(xₙ − xᵢ)   λ ~ U(0,1)</div>
+      </div>
+      <div class="card cl lb">
+        <h4>class_weight='balanced'</h4>
+        <p>Penaliza más los errores en la clase minoritaria. Sin modificar datos.</p>
+        <div class="fm">wₖ = n / (n_classes · nₖ)</div>
+      </div>
+      <div class="card cl lt">
+        <h4>Ajuste de umbral</h4>
+        <p>Usar umbral < 0.5 para detectar mejor la clase minoritaria. Optimizar en función de F1 o Recall.</p>
+      </div>
+      <div class="card cl la">
+        <h4>Undersampling</h4>
+        <p>Reduce la clase mayoritaria con Tomek Links o NearMiss. Pierde información.</p>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Encoding y escalado</h4>
+    <table>
+      <tr><th>Método</th><th>Cuándo usar</th><th>Precaución</th></tr>
+      <tr><td>One-Hot Encoding</td><td>Sin orden, baja cardinalidad</td><td>Curse of dimensionality</td></tr>
+      <tr><td>Label Encoding</td><td>Con orden natural</td><td>No usar sin orden → jerarquía falsa</td></tr>
+      <tr><td>Target Encoding</td><td>Alta cardinalidad</td><td>Data leakage si no está en Pipeline</td></tr>
+      <tr><td>StandardScaler</td><td>Reg. Logística, SVM, KNN</td><td>No necesario en árboles</td></tr>
+    </table>
+    <div class="tip">💡 Siempre construye un Pipeline de sklearn para evitar data leakage: el escalado y encoding se aprenden SOLO con datos de train en cada fold.</div>
+  </div>
+
+  <!-- HIPERPARÁMETROS -->
+  <div id="hiperparam" class="panel">
+    <h3>Hiperparámetros clave</h3>
+    <div class="card cl lb" style="margin-bottom:1rem">
+      <h4>Regresión Logística</h4>
+      <table>
+        <tr><th>Parámetro</th><th>Descripción</th><th>Valores típicos</th></tr>
+        <tr><td>C</td><td>Inverso de regularización. Alto C → menos regularización</td><td>0.001 – 100</td></tr>
+        <tr><td>penalty</td><td>Tipo de regularización</td><td>l1, l2, elasticnet</td></tr>
+        <tr><td>class_weight</td><td>Pesos para desbalance</td><td>None, 'balanced', dict</td></tr>
+      </table>
+    </div>
+    <div class="card cl lp" style="margin-bottom:1rem">
+      <h4>SVM</h4>
+      <table>
+        <tr><th>Parámetro</th><th>Descripción</th><th>Rango</th></tr>
+        <tr><td>C</td><td>Penalización por clasificar mal. Alto → más flexible</td><td>0.01 – 1000</td></tr>
+        <tr><td>kernel</td><td>Función de kernel</td><td>rbf, linear, poly</td></tr>
+        <tr><td>gamma</td><td>Influencia de cada punto (rbf)</td><td>scale, auto, 1e-4–1</td></tr>
+      </table>
+    </div>
+    <div class="card cl lt" style="margin-bottom:1rem">
+      <h4>Random Forest / Gradient Boosting</h4>
+      <table>
+        <tr><th>Parámetro</th><th>Descripción</th><th>Rango típico</th></tr>
+        <tr><td>n_estimators</td><td>Número de árboles</td><td>100 – 1000</td></tr>
+        <tr><td>max_depth</td><td>Profundidad máxima</td><td>3–8 (GB), None (RF)</td></tr>
+        <tr><td>learning_rate</td><td>Tasa de aprendizaje (GB)</td><td>0.01 – 0.3</td></tr>
+        <tr><td>scale_pos_weight</td><td>Peso clase positiva (XGBoost)</td><td>neg/pos ratio</td></tr>
+      </table>
+    </div>
+    <div class="warn">⚠️ <strong>No optimizar accuracy en datos desbalanceados.</strong> Usar ROC-AUC o F1 como scoring en GridSearchCV/RandomizedSearchCV.</div>
+  </div>
+
+  <!-- CV -->
+  <div id="cv" class="panel">
+    <h3>Validación Cruzada Estratificada</h3>
+    <p style="margin-bottom:1rem"><strong>StratifiedKFold</strong> preserva la proporción de clases en cada fold. Esencial en clasificación, especialmente con clases desbalanceadas.</p>
+    <div class="g2">
+      <div class="card">
+        <h4>Estrategias de CV</h4>
+        <table>
+          <tr><th>Método</th><th>Cuándo</th></tr>
+          <tr><td>StratifiedKFold</td><td>Clasificación — preserva proporción de clases</td></tr>
+          <tr><td>KFold estándar</td><td>Solo si clases están balanceadas</td></tr>
+          <tr><td>TimeSeriesSplit</td><td>Datos secuenciales</td></tr>
+          <tr><td>GroupKFold</td><td>Grupos que no deben dividirse</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h4>Métricas de CV adecuadas</h4>
+        <div class="step"><div class="sn">1</div><p>Balanceadas → accuracy o F1-macro</p></div>
+        <div class="step"><div class="sn">2</div><p>Desbalanceadas → ROC-AUC o PR-AUC</p></div>
+        <div class="step"><div class="sn">3</div><p>Coste asimétrico (FP≠FN) → Precision o Recall</p></div>
+        <div class="step"><div class="sn">4</div><p>Multiclase → F1-weighted o F1-macro</p></div>
+      </div>
+    </div>
+    <div class="fm">from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+scores = cross_val_score(
+    pipeline, X_train, y_train,
+    cv=skf, scoring='roc_auc', n_jobs=-1
+)
+print(f"AUC: {scores.mean():.3f} ± {scores.std():.3f}")</div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div id="metricas" class="panel">
+    <h3>Métricas de evaluación</h3>
+
+    <h4 style="margin-bottom:.75rem">Matriz de confusión — base de todo</h4>
+    <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1.5rem">
+      <div>
+        <div class="cm-grid">
+          <div class="cm-cell" style="background:#E1F5EE;color:#0F6E56"><span style="font-size:18px;font-weight:700">TP</span><span style="font-size:10px">Verdadero Positivo</span></div>
+          <div class="cm-cell" style="background:#FCEBEB;color:#A32D2D"><span style="font-size:18px;font-weight:700">FP</span><span style="font-size:10px">Falso Positivo</span></div>
+          <div class="cm-cell" style="background:#FAEEDA;color:#633806"><span style="font-size:18px;font-weight:700">FN</span><span style="font-size:10px">Falso Negativo</span></div>
+          <div class="cm-cell" style="background:#E1F5EE;color:#0F6E56"><span style="font-size:18px;font-weight:700">TN</span><span style="font-size:10px">Verdadero Negativo</span></div>
+        </div>
+        <p style="font-size:11px;text-align:center;color:var(--muted);margin-top:6px">Filas=Real · Columnas=Predicho</p>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <table>
+          <tr><th>Métrica</th><th>Fórmula</th></tr>
+          <tr><td>Accuracy</td><td>(TP+TN)/(TP+TN+FP+FN)</td></tr>
+          <tr><td>Precision</td><td>TP/(TP+FP)</td></tr>
+          <tr><td>Recall</td><td>TP/(TP+FN)</td></tr>
+          <tr><td>F1-Score</td><td>2·(P·R)/(P+R)</td></tr>
+          <tr><td>ROC-AUC</td><td>Área bajo curva ROC</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-bottom:1.25rem">
+      <div class="card cl lr">
+        <h4>Precision vs Recall</h4>
+        <p>Precision: de lo predicho positivo, ¿cuánto era real?<br>Recall: de todos los positivos reales, ¿cuántos encontré?</p>
+        <div class="pills"><span class="badge br">Spam → Alta Precision</span><span class="badge ba">Cáncer → Alto Recall</span></div>
+      </div>
+      <div class="card cl lb">
+        <h4>ROC-AUC vs PR-AUC</h4>
+        <p>ROC-AUC puede ser optimista con clases muy desbalanceadas. PR-AUC es más informativa cuando la clase positiva es rara.</p>
+        <div class="pills"><span class="badge bb">Balanceado → ROC-AUC</span><span class="badge bt">Desbalanceado → PR-AUC</span></div>
+      </div>
+    </div>
+
+    <div class="cw" style="height:270px"><canvas id="cMetricas"></canvas></div>
+    <div class="leg" id="metLeg"></div>
+  </div>
+
+  <!-- COMPARATIVA -->
+  <div id="comparativa" class="panel">
+    <h3>Comparativa y guía de selección</h3>
+    <table style="margin-bottom:1.5rem">
+      <tr><th>Modelo</th><th>Ventajas</th><th>Limitaciones</th><th>Contexto ideal</th></tr>
+      <tr><td>Reg. Logística</td><td>Interpretable, probabilidades</td><td>Solo fronteras lineales</td><td>Baseline, NLP con TF-IDF</td></tr>
+      <tr><td>SVM</td><td>Margen máximo, kernel no lineal</td><td>Lento N grande</td><td>Datasets medianos</td></tr>
+      <tr><td>KNN</td><td>No paramétrico, simple</td><td>Lento en predicción</td><td>Datasets pequeños</td></tr>
+      <tr><td>Árbol decisión</td><td>Interpretable, reglas</td><td>Overfitting fuerte</td><td>Explicabilidad requerida</td></tr>
+      <tr><td>Naive Bayes</td><td>Muy rápido, texto</td><td>Asume independencia</td><td>NLP, spam</td></tr>
+      <tr><td>Random Forest</td><td>Robusto, paralelo</td><td>Menos interpretable</td><td>Producción</td></tr>
+      <tr><td>XGBoost/LGB</td><td>State-of-the-art tabular</td><td>Más hiperparámetros</td><td>Competencias</td></tr>
+    </table>
+    <div class="step"><div class="sn">1</div><p>Siempre empieza con Regresión Logística como baseline</p></div>
+    <div class="step"><div class="sn">2</div><p>Analiza el desbalance antes de elegir el modelo</p></div>
+    <div class="step"><div class="sn">3</div><p>Si necesitas explicabilidad → Árbol o Reg. Logística</p></div>
+    <div class="step"><div class="sn">4</div><p>Datos tabulares en producción → Random Forest o XGBoost</p></div>
+    <div class="step"><div class="sn">5</div><p>Texto/NLP → Naive Bayes o Reg. Logística con TF-IDF</p></div>
+    <div class="step"><div class="sn">6</div><p>Usa StratifiedKFold + ROC-AUC/F1 para validar siempre</p></div>
+    <div class="cw" style="height:300px"><canvas id="cRadar"></canvas></div>
+    <div class="leg" id="radarLeg"></div>
+  </div>
+
+</div>
+
+<footer>
+  <p>Masterclass ML · <a href="index.html">← Volver al inicio</a></p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const tc='rgba(0,0,0,.45)', gc='rgba(0,0,0,.07)';
+const P=['#378ADD','#534AB7','#0F6E56','#BA7517','#A32D2D','#639922','#D4537E'];
+const rendered={};
+
+function show(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('active');
+  setTimeout(()=>draw(id),50);
+}
+
+function draw(id){
+  if(rendered[id])return; rendered[id]=true;
+  const bo={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+            scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}};
+
+  if(id==='intro'){
+    const rng=(s)=>{let v=s;return()=>{v=(v*1664525+1013904223)&0x7fffffff;return v/0x7fffffff;}};
+    const r=rng(7), n=80;
+    const c0=Array.from({length:n},()=>({x:r()*4-4,y:r()*4-2}));
+    const c1=Array.from({length:n},()=>({x:r()*4, y:r()*4-2}));
+    new Chart(document.getElementById('cIntro'),{type:'scatter',data:{datasets:[
+      {label:'Clase 0',data:c0,backgroundColor:'rgba(55,138,221,.5)',pointRadius:4},
+      {label:'Clase 1',data:c1,backgroundColor:'rgba(163,45,45,.5)',pointRadius:4},
+    ]},options:{...bo,plugins:{legend:{display:false}}}});
+  }
+
+  if(id==='tipos'){
+    new Chart(document.getElementById('cTipos'),{type:'bar',
+      data:{labels:['Reg. Logística','SVM (RBF)','KNN','Árbol','Random Forest','XGBoost','Naive Bayes'],
+            datasets:[{data:[0.84,0.87,0.82,0.78,0.91,0.93,0.76],backgroundColor:P,borderRadius:4}]},
+      options:{...bo,scales:{
+        x:{ticks:{color:tc,maxRotation:20},grid:{color:'transparent'}},
+        y:{min:0.5,max:1,ticks:{color:tc,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:gc},
+           title:{display:true,text:'Accuracy',color:tc}}}}});
+  }
+
+  if(id==='metricas'){
+    const labels=['Reg. Logística','SVM','KNN','Árbol','Rand. Forest','XGBoost','Naive Bayes'];
+    const acc=[0.84,0.87,0.82,0.78,0.91,0.93,0.76];
+    const f1 =[0.83,0.86,0.81,0.76,0.90,0.92,0.74];
+    const auc=[0.91,0.93,0.88,0.82,0.96,0.97,0.84];
+    new Chart(document.getElementById('cMetricas'),{type:'bar',data:{labels,datasets:[
+      {label:'Accuracy',  data:acc, backgroundColor:'rgba(55,138,221,.7)', borderRadius:3},
+      {label:'F1-Score',  data:f1,  backgroundColor:'rgba(83,74,183,.7)',  borderRadius:3},
+      {label:'ROC-AUC',   data:auc, backgroundColor:'rgba(15,110,86,.7)',  borderRadius:3},
+    ]},options:{...bo,scales:{
+      x:{ticks:{color:tc,maxRotation:20},grid:{color:'transparent'}},
+      y:{min:0.5,max:1,ticks:{color:tc,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:gc}}}}});
+    const leg=document.getElementById('metLeg');
+    [['#378ADD','Accuracy'],['#534AB7','F1-Score'],['#0F6E56','ROC-AUC']].forEach(([c,n])=>
+      leg.innerHTML+=`<span><span class="ls" style="background:${c}"></span>${n}</span>`);
+  }
+
+  if(id==='comparativa'){
+    const cats=['Interpretabilidad','Velocidad','Precisión','Robustez desbalance','Alta dimensión','No lineal'];
+    const ms=[
+      {n:'Reg. Logística',v:[10,10,5,6,7,1],c:P[0]},
+      {n:'SVM',           v:[4,5,7,5,8,8],  c:P[1]},
+      {n:'Random Forest', v:[5,6,9,8,7,9],  c:P[2]},
+      {n:'XGBoost',       v:[3,5,10,8,8,10],c:P[3]},
+      {n:'Naive Bayes',   v:[7,10,5,5,7,3], c:P[4]},
+    ];
+    new Chart(document.getElementById('cRadar'),{type:'radar',data:{labels:cats,
+      datasets:ms.map(m=>({label:m.n,data:m.v,borderColor:m.c,backgroundColor:m.c+'15',borderWidth:2,pointBackgroundColor:m.c}))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+               scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:gc},pointLabels:{color:tc,font:{size:10}}}}}});
+    const leg=document.getElementById('radarLeg');
+    ms.forEach(m=>leg.innerHTML+=`<span><span class="ls" style="background:${m.c}"></span>${m.n}</span>`);
+  }
+}
+draw('intro');
+</script>
+</body>
+</html>
