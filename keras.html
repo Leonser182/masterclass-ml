@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keras — Masterclass</title>
+<style>
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;--accent:#534AB7;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text)}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:16px;color:#378ADD;text-decoration:none}
+.nav-links{display:flex;gap:1.2rem}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);font-weight:500}
+.hero{background:linear-gradient(135deg,#1e1b4b,#534AB7,#378ADD);color:white;padding:3rem 2rem;text-align:center}
+.hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;margin-bottom:.6rem}
+.hero p{opacity:.85;max-width:620px;margin:0 auto 1.25rem;font-size:15px}
+.hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.hero-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:3px 12px;border-radius:999px;font-size:12px}
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.55rem;margin-bottom:2rem}
+.tab{padding:5px 12px;font-size:12.5px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.tab.active,.tab:hover{background:#EEEDFE;color:var(--accent);border-color:#C4C1F7;font-weight:500}
+.panel{display:none}.panel.on{display:block}
+h3{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}
+h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+p,li{font-size:14px;color:var(--muted);line-height:1.7}
+ul{padding-left:1.2rem;margin-bottom:.75rem}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-bottom:1.25rem}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:1.25rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem}
+.cl{border-left:3px solid;border-radius:0 var(--radius) var(--radius) 0}
+.lb{border-left-color:#378ADD}.lp{border-left-color:#534AB7}.lt{border-left-color:#0F6E56}
+.la{border-left-color:#BA7517}.lr{border-left-color:#A32D2D}.lk{border-left-color:#D4537E}.lg{border-left-color:#639922}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px}
+.bg{background:#EAF3DE;color:#27500A}.br{background:#FCEBEB;color:#791F1F}
+.ba{background:#FAEEDA;color:#633806}.bb{background:#E6F1FB;color:#0C447C}
+.bt{background:#E1F5EE;color:#085041}.bp{background:#EEEDFE;color:#3C3489}
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin:.35rem 0 .75rem}
+.fm{font-family:'Courier New',monospace;font-size:12px;background:#f1f5f9;padding:.65rem 1rem;border-radius:8px;color:#1e293b;margin:.4rem 0 .9rem;border:1px solid #e2e8f0;line-height:1.8;white-space:pre-wrap;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:1.25rem}
+th{text-align:left;padding:8px 10px;font-weight:600;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);background:#f9fafb}
+td{padding:8px 10px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:top}
+td:first-child{color:var(--text);font-weight:500}
+tr:last-child td{border-bottom:none}
+.step{display:flex;gap:10px;align-items:flex-start;margin-bottom:.65rem}
+.sn{min-width:24px;height:24px;border-radius:50%;background:#EEEDFE;border:1px solid #C4C1F7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0}
+.cw{width:100%;margin:1rem 0}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-top:5px}
+.ls{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+.tip{background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#3730a3;margin-bottom:1rem}
+.warn{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:#78350f;margin-bottom:1rem}
+.apibox{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.apihead{padding:.55rem 1rem;font-size:13px;font-weight:600;background:#f9fafb;color:var(--text);border-bottom:1px solid var(--border)}
+.apibody{padding:.85rem 1rem}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.5rem}
+.stat{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:.85rem 1rem;text-align:center}
+.stat-val{font-size:1.4rem;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+footer{background:#1e293b;color:#94a3b8;text-align:center;padding:1.5rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:#378ADD;text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF;transition:all .2s}
+.back-btn:hover{background:#378ADD;color:white;border-color:#378ADD}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html">Regresión</a>
+    <a href="clasificacion.html">Clasificación</a>
+    <a href="no-supervisado.html">No Supervisado</a>
+    <a href="redes-neuronales.html">Redes Neuronales</a>
+    <a href="keras.html" class="active">Keras</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>⚡ Keras — Deep Learning API</h1>
+  <p>La API oficial de alto nivel de TensorFlow para construir, entrenar y desplegar modelos de deep learning.</p>
+  <div class="hero-badges">
+    <span class="hero-badge">Sequential API</span>
+    <span class="hero-badge">Functional API</span>
+    <span class="hero-badge">Model Subclassing</span>
+    <span class="hero-badge">Callbacks</span>
+    <span class="hero-badge">Transfer Learning</span>
+    <span class="hero-badge">Despliegue</span>
+  </div>
+</div>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('intro',this)">🎯 Intro</button>
+    <button class="tab" onclick="show('apis',this)">🏗 APIs</button>
+    <button class="tab" onclick="show('layers',this)">🧱 Capas</button>
+    <button class="tab" onclick="show('compile',this)">⚙️ Compilar</button>
+    <button class="tab" onclick="show('train',this)">🚀 Entrenar</button>
+    <button class="tab" onclick="show('callbacks',this)">📡 Callbacks</button>
+    <button class="tab" onclick="show('custom',this)">🔧 Custom</button>
+    <button class="tab" onclick="show('transfer',this)">♻️ Transfer</button>
+    <button class="tab" onclick="show('deploy',this)">📦 Despliegue</button>
+  </div>
+
+  <!-- ═══ 1. INTRO ═══ -->
+  <div id="intro" class="panel on">
+    <h3>¿Qué es Keras?</h3>
+    <p style="margin-bottom:1rem">Keras es la API oficial de alto nivel integrada en TensorFlow desde la versión 2.0. En 2023 lanzaron Keras 3.0 con soporte multi-backend (JAX, PyTorch, TensorFlow). Permite construir y entrenar modelos con muy pocas líneas de código sin sacrificar flexibilidad.</p>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">APIs disponibles</div></div>
+      <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">Backends: JAX · TF · PT</div></div>
+      <div class="stat"><div class="stat-val">100+</div><div class="stat-lbl">Capas built-in</div></div>
+      <div class="stat"><div class="stat-val">10+</div><div class="stat-lbl">Optimizadores</div></div>
+    </div>
+
+    <div class="g3">
+      <div class="card cl lb">
+        <h4>Sequential API</h4>
+        <p>Para modelos lineales: una capa tras otra. Ideal para aprender y arquitecturas simples sin bifurcaciones.</p>
+        <div class="pills"><span class="badge bg">Simple</span><span class="badge bg">Rápido</span><span class="badge br">Sin bifurcaciones</span></div>
+      </div>
+      <div class="card cl lp">
+        <h4>Functional API</h4>
+        <p>Para arquitecturas complejas: múltiples entradas/salidas, skip connections, ramas paralelas. La más usada en producción.</p>
+        <div class="pills"><span class="badge bp">Flexible</span><span class="badge bg">Multi I/O</span><span class="badge bg">DAG</span></div>
+      </div>
+      <div class="card cl lt">
+        <h4>Model subclassing</h4>
+        <p>Subclasear <code>keras.Model</code>. Control total del forward pass. Ideal para investigación y lógica condicional.</p>
+        <div class="pills"><span class="badge bt">Máximo control</span><span class="badge ba">Más código</span></div>
+      </div>
+    </div>
+
+    <div class="cw" style="height:250px"><canvas id="cIntro"></canvas></div>
+    <div class="leg" id="introLeg"></div>
+  </div>
+
+  <!-- ═══ 2. APIs ═══ -->
+  <div id="apis" class="panel">
+    <h3>Las tres APIs en detalle</h3>
+
+    <div class="apibox">
+      <div class="apihead" style="border-left:3px solid #378ADD">🔵 Sequential API — arquitecturas lineales</div>
+      <div class="apibody">
+        <div class="fm">import keras
+from keras import layers
+
+model = keras.Sequential([
+    keras.Input(shape=(784,)),           # define explícitamente el input
+    layers.Dense(128, activation='relu',
+                 kernel_initializer='he_normal'),
+    layers.BatchNormalization(),
+    layers.Dropout(0.3),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(10, activation='softmax')
+], name='mi_clasificador')
+
+model.summary()   # tabla con capas, shapes y parámetros</div>
+        <div class="pills"><span class="badge bg">model.add() también funciona</span><span class="badge bb">Definir Input() es buena práctica</span></div>
+      </div>
+    </div>
+
+    <div class="apibox">
+      <div class="apihead" style="border-left:3px solid #534AB7">🟣 Functional API — arquitecturas complejas</div>
+      <div class="apibody">
+        <div class="fm">inputs  = keras.Input(shape=(784,), name='imagen')
+x       = layers.Dense(128, activation='relu')(inputs)
+x       = layers.BatchNormalization()(x)
+x       = layers.Dropout(0.3)(x)
+x       = layers.Dense(64, activation='relu')(x)
+outputs = layers.Dense(10, activation='softmax')(x)
+
+model = keras.Model(inputs=inputs,
+                    outputs=outputs,
+                    name='functional_classifier')</div>
+        <p style="font-size:13px;margin-top:.5rem">Permite múltiples inputs (<code>inputs=[img, meta]</code>), múltiples outputs, conexiones residuales y ramas paralelas.</p>
+        <div class="fm" style="margin-top:.5rem"># Ejemplo: conexión residual (ResNet style)
+def residual_block(x, units):
+    shortcut = x
+    x = layers.Dense(units, activation='relu')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dense(units)(x)
+    x = layers.Add()([x, shortcut])     # skip connection
+    return layers.Activation('relu')(x)</div>
+      </div>
+    </div>
+
+    <div class="apibox">
+      <div class="apihead" style="border-left:3px solid #0F6E56">🟢 Model Subclassing — control total</div>
+      <div class="apibody">
+        <div class="fm">class MiModelo(keras.Model):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.dense1 = layers.Dense(128, activation='relu',
+                                   kernel_initializer='he_normal')
+        self.bn     = layers.BatchNormalization()
+        self.drop   = layers.Dropout(0.3)
+        self.dense2 = layers.Dense(num_classes, activation='softmax')
+
+    def call(self, inputs, training=False):
+        x = self.dense1(inputs)
+        x = self.bn(x, training=training)   # comportamiento distinto en train/test
+        x = self.drop(x, training=training)
+        return self.dense2(x)
+
+model = MiModelo(num_classes=10)
+model(tf.zeros((1, 784)))   # construir el modelo (necesario antes de summary)</div>
+      </div>
+    </div>
+
+    <div class="tip">💡 <strong>¿Cuál API usar?</strong> Empieza con Sequential para proyectos simples. Usa Functional para producción y arquitecturas con skip connections. Usa Subclassing solo cuando necesites lógica condicional en el forward pass.</div>
+  </div>
+
+  <!-- ═══ 3. CAPAS ═══ -->
+  <div id="layers" class="panel">
+    <h3>Catálogo de capas principales</h3>
+
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Capas core</h4>
+    <table>
+      <tr><th>Capa</th><th>Descripción</th><th>Parámetros clave</th></tr>
+      <tr><td>Dense</td><td>Totalmente conectada: y = f(Wx + b)</td><td>units, activation, kernel_initializer, kernel_regularizer</td></tr>
+      <tr><td>Activation</td><td>Activación separada de la transformación lineal</td><td>relu, gelu, sigmoid, softmax, tanh, elu</td></tr>
+      <tr><td>Dropout</td><td>Desactiva neuronas aleatoriamente en train</td><td>rate (0.0–0.5), seed</td></tr>
+      <tr><td>BatchNormalization</td><td>Normaliza activaciones por mini-batch</td><td>momentum=0.99, epsilon=1e-3, axis=-1</td></tr>
+      <tr><td>LayerNormalization</td><td>Normaliza por features — estándar en Transformers</td><td>epsilon=1e-6</td></tr>
+      <tr><td>Embedding</td><td>Tabla de vectores densos para índices discretos</td><td>input_dim, output_dim, mask_zero</td></tr>
+    </table>
+
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Capas convolucionales</h4>
+    <table>
+      <tr><th>Capa</th><th>Uso</th><th>Parámetros clave</th></tr>
+      <tr><td>Conv2D</td><td>Convolución 2D para imágenes</td><td>filters, kernel_size, strides, padding='same'/'valid'</td></tr>
+      <tr><td>SeparableConv2D</td><td>Depthwise + pointwise. Más eficiente que Conv2D</td><td>filters, kernel_size, depth_multiplier</td></tr>
+      <tr><td>MaxPooling2D</td><td>Submuestreo por máximo</td><td>pool_size=(2,2), strides, padding</td></tr>
+      <tr><td>GlobalAvgPooling2D</td><td>Promedia la feature map entera — antes del clasificador</td><td>data_format, keepdims</td></tr>
+      <tr><td>Conv1D</td><td>Convolución 1D para secuencias</td><td>filters, kernel_size, padding, dilation_rate</td></tr>
+    </table>
+
+    <h4 style="margin-bottom:.5rem;text-transform:uppercase;font-size:11px;color:var(--muted);letter-spacing:.05em">Capas recurrentes</h4>
+    <table>
+      <tr><th>Capa</th><th>Descripción</th><th>Parámetros clave</th></tr>
+      <tr><td>LSTM</td><td>Long Short-Term Memory. Dependencias largas</td><td>units, return_sequences, dropout, recurrent_dropout</td></tr>
+      <tr><td>GRU</td><td>Gated Recurrent Unit. Más rápido que LSTM</td><td>units, return_sequences, reset_after</td></tr>
+      <tr><td>Bidirectional</td><td>Procesa la secuencia en ambas direcciones</td><td>layer, merge_mode='concat'/'sum'</td></tr>
+      <tr><td>TimeDistributed</td><td>Aplica la misma capa a cada paso temporal</td><td>layer</td></tr>
+    </table>
+
+    <div class="cw" style="height:240px"><canvas id="cLayers"></canvas></div>
+    <div class="leg" id="layersLeg"></div>
+  </div>
+
+  <!-- ═══ 4. COMPILAR ═══ -->
+  <div id="compile" class="panel">
+    <h3>Compilación del modelo</h3>
+    <p style="margin-bottom:1rem"><code>model.compile()</code> configura el proceso de entrenamiento: qué optimizador, qué función de pérdida y qué métricas monitorear.</p>
+
+    <div class="fm">model.compile(
+    optimizer = keras.optimizers.Adam(
+        learning_rate = 1e-3,
+        beta_1        = 0.9,        # momentum del gradiente
+        beta_2        = 0.999,      # momentum del cuadrado del gradiente
+        epsilon       = 1e-8,
+        clipnorm      = 1.0,        # gradient clipping — crítico en RNNs
+    ),
+    loss    = 'sparse_categorical_crossentropy',
+    metrics = [
+        'accuracy',
+        keras.metrics.AUC(name='auc'),
+        keras.metrics.Precision(name='precision'),
+        keras.metrics.Recall(name='recall'),
+    ]
+)</div>
+
+    <h4 style="margin-bottom:.5rem">Pérdidas por tarea</h4>
+    <table style="margin-bottom:1.25rem">
+      <tr><th>Tarea</th><th>Loss</th><th>Activación salida</th></tr>
+      <tr><td>Clasificación binaria</td><td>binary_crossentropy</td><td>sigmoid (1 unidad)</td></tr>
+      <tr><td>Multiclase (one-hot)</td><td>categorical_crossentropy</td><td>softmax (K unidades)</td></tr>
+      <tr><td>Multiclase (enteros)</td><td>sparse_categorical_crossentropy</td><td>softmax (K unidades)</td></tr>
+      <tr><td>Regresión</td><td>mean_squared_error / mae</td><td>linear (sin activación)</td></tr>
+      <tr><td>Multilabel</td><td>binary_crossentropy</td><td>sigmoid (K unidades)</td></tr>
+    </table>
+
+    <h4 style="margin-bottom:.75rem">Optimizadores</h4>
+    <div class="g2">
+      <div class="card cl lb">
+        <h4>Adam / AdamW</h4>
+        <div class="fm">Adam(lr=1e-3, beta_1=0.9, beta_2=0.999)
+AdamW(lr=1e-3, weight_decay=1e-4)</div>
+        <p style="font-size:13px">Default recomendado. AdamW es estándar para Transformers y LLMs.</p>
+      </div>
+      <div class="card cl lp">
+        <h4>SGD + momentum</h4>
+        <div class="fm">SGD(lr=0.01, momentum=0.9,
+    nesterov=True, clipnorm=1.0)</div>
+        <p style="font-size:13px">Generaliza mejor en algunos casos. Requiere tuning cuidadoso del LR.</p>
+      </div>
+      <div class="card cl lt">
+        <h4>RMSprop</h4>
+        <div class="fm">RMSprop(lr=1e-3, rho=0.9,
+        epsilon=1e-8)</div>
+        <p style="font-size:13px">Bueno para RNNs y datos no estacionarios.</p>
+      </div>
+      <div class="card cl la">
+        <h4>Lion (2023)</h4>
+        <div class="fm">keras.optimizers.Lion(
+    lr=1e-4, weight_decay=1e-2)</div>
+        <p style="font-size:13px">Nuevo optimizador. Eficiente en memoria, competitivo con AdamW.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 5. ENTRENAR ═══ -->
+  <div id="train" class="panel">
+    <h3>Ciclo de entrenamiento</h3>
+
+    <div class="card cl lb" style="margin-bottom:1.25rem">
+      <h4>model.fit() — API de alto nivel</h4>
+      <div class="fm">history = model.fit(
+    x                = X_train,        # ndarray, tf.data.Dataset, generador
+    y                = y_train,
+    epochs           = 100,
+    batch_size       = 64,
+    validation_split = 0.2,            # o validation_data=(X_val, y_val)
+    class_weight     = {0:1.0, 1:3.0}, # para clases desbalanceadas
+    shuffle          = True,
+    callbacks        = [cb_early, cb_reduce, cb_ckpt],
+    verbose          = 1               # 0=silencio, 1=barra, 2=épocas
+)
+# history.history: dict con loss, val_loss, accuracy, val_accuracy…
+print(f"Mejor val_loss: {min(history.history['val_loss']):.4f}")</div>
+    </div>
+
+    <div class="card cl lp" style="margin-bottom:1.25rem">
+      <h4>tf.data — pipelines eficientes para datasets grandes</h4>
+      <div class="fm">dataset = tf.data.Dataset.from_tensor_slices((X, y))
+dataset = (dataset
+    .shuffle(buffer_size=10000, seed=42)
+    .batch(64)
+    .prefetch(tf.data.AUTOTUNE)         # solapamiento CPU/GPU
+    .map(augment_fn,                    # data augmentation
+         num_parallel_calls=tf.data.AUTOTUNE)
+)
+model.fit(dataset, epochs=50, validation_data=val_ds)</div>
+    </div>
+
+    <div class="card cl lt" style="margin-bottom:1.25rem">
+      <h4>Training loop personalizado con GradientTape</h4>
+      <div class="fm">optimizer = keras.optimizers.Adam(1e-3)
+loss_fn   = keras.losses.SparseCategoricalCrossentropy()
+train_acc = keras.metrics.SparseCategoricalAccuracy()
+
+@tf.function   # compila a grafo TF para máxima velocidad
+def train_step(x_batch, y_batch):
+    with tf.GradientTape() as tape:
+        preds = model(x_batch, training=True)
+        loss  = loss_fn(y_batch, preds)
+    grads = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(
+        zip(grads, model.trainable_variables))
+    train_acc.update_state(y_batch, preds)
+    return loss
+
+for epoch in range(epochs):
+    for x_batch, y_batch in train_dataset:
+        loss = train_step(x_batch, y_batch)
+    print(f"Epoch {epoch} — acc: {train_acc.result():.4f}")
+    train_acc.reset_state()</div>
+    </div>
+
+    <div class="cw" style="height:230px"><canvas id="cTrain"></canvas></div>
+    <div class="leg"><span><span class="ls" style="background:#378ADD"></span>Train loss</span><span><span class="ls" style="background:#534AB7"></span>Val loss</span><span><span class="ls" style="background:#0F6E56"></span>Train acc</span><span><span class="ls" style="background:#BA7517"></span>Val acc</span></div>
+  </div>
+
+  <!-- ═══ 6. CALLBACKS ═══ -->
+  <div id="callbacks" class="panel">
+    <h3>Callbacks — controlar el entrenamiento</h3>
+    <p style="margin-bottom:1rem">Los callbacks se ejecutan en puntos específicos del ciclo. Son la forma de monitorear, controlar y personalizar el proceso sin reescribir el loop.</p>
+
+    <div class="g2">
+      <div class="card cl lb">
+        <h4>EarlyStopping</h4>
+        <div class="fm">keras.callbacks.EarlyStopping(
+    monitor             = 'val_loss',
+    patience            = 10,
+    restore_best_weights= True,
+    mode                = 'min',
+    min_delta           = 1e-4
+)</div>
+        <p style="font-size:13px">Detiene si la métrica no mejora en <code>patience</code> épocas. Restaura los mejores pesos automáticamente.</p>
+      </div>
+      <div class="card cl lp">
+        <h4>ReduceLROnPlateau</h4>
+        <div class="fm">keras.callbacks.ReduceLROnPlateau(
+    monitor = 'val_loss',
+    factor  = 0.5,          # LR × 0.5
+    patience= 5,
+    min_lr  = 1e-7,
+    verbose = 1
+)</div>
+        <p style="font-size:13px">Reduce el LR cuando la pérdida se estanca. Permite empezar con LR alto y refinarlo.</p>
+      </div>
+      <div class="card cl lt">
+        <h4>ModelCheckpoint</h4>
+        <div class="fm">keras.callbacks.ModelCheckpoint(
+    filepath       = 'mejor_modelo.keras',
+    monitor        = 'val_auc',
+    save_best_only = True,
+    mode           = 'max',
+    verbose        = 1
+)</div>
+        <p style="font-size:13px">Guarda el modelo cuando la métrica mejora. Formato <code>.keras</code> es más robusto que HDF5.</p>
+      </div>
+      <div class="card cl la">
+        <h4>TensorBoard</h4>
+        <div class="fm">keras.callbacks.TensorBoard(
+    log_dir        = './logs',
+    histogram_freq = 1,     # histogramas de pesos
+    write_graph    = True,
+    update_freq    = 'epoch'
+)
+# Lanzar: tensorboard --logdir ./logs</div>
+        <p style="font-size:13px">Visualiza curvas, histogramas y grafos del modelo en tiempo real en el navegador.</p>
+      </div>
+      <div class="card cl lr">
+        <h4>LearningRateScheduler</h4>
+        <div class="fm">def cosine_schedule(epoch, lr):
+    total = 100
+    return lr_max * 0.5 * (
+        1 + np.cos(np.pi * epoch / total))
+
+keras.callbacks.LearningRateScheduler(
+    cosine_schedule, verbose=0)</div>
+        <p style="font-size:13px">Aplica warmup, cosine decay, step decay, etc. según una función personalizada.</p>
+      </div>
+      <div class="card cl lk">
+        <h4>Custom Callback</h4>
+        <div class="fm">class MiCallback(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        if logs.get('val_auc', 0) > 0.99:
+            print('\n✅ AUC > 0.99 — deteniendo')
+            self.model.stop_training = True
+
+    def on_train_begin(self, logs=None):
+        print('Iniciando entrenamiento…')</div>
+        <p style="font-size:13px">Hooks: on_train/test/predict_begin/end, on_epoch/batch_begin/end.</p>
+      </div>
+    </div>
+
+    <div class="tip">💡 <strong>Combinación recomendada para producción:</strong> EarlyStopping (patience=15) + ReduceLROnPlateau (patience=7) + ModelCheckpoint (save_best_only=True)</div>
+  </div>
+
+  <!-- ═══ 7. CUSTOM ═══ -->
+  <div id="custom" class="panel">
+    <h3>Componentes personalizados</h3>
+
+    <div class="apibox">
+      <div class="apihead" style="border-left:3px solid #378ADD">Custom Layer — heredar de keras.Layer</div>
+      <div class="apibody">
+        <div class="fm">class MiCapa(keras.layers.Layer):
+    def __init__(self, units, activation='relu', **kwargs):
+        super().__init__(**kwargs)
+        self.units      = units
+        self.activation = keras.activations.get(activation)
+
+    def build(self, input_shape):
+        # Los pesos se crean aquí (se conoce el shape del input)
+        self.w = self.add_weight(
+            shape=(input_shape[-1], self.units),
+            initializer='glorot_uniform',
+            trainable=True, name='w')
+        self.b = self.add_weight(
+            shape=(self.units,),
+            initializer='zeros',
+            trainable=True, name='b')
+
+    def call(self, inputs, training=False):
+        return self.activation(inputs @ self.w + self.b)
+
+    def get_config(self):   # necesario para serialización
+        cfg = super().get_config()
+        cfg.update({'units': self.units,
+                    'activation': keras.activations.serialize(self.activation)})
+        return cfg
+
+# Uso:
+capa = MiCapa(64, activation='relu')
+output = capa(tf.zeros((32, 128)))</div>
+      </div>
+    </div>
+
+    <div class="apibox">
+      <div class="apihead" style="border-left:3px solid #534AB7">Custom Loss — Focal Loss para clases desbalanceadas</div>
+      <div class="apibody">
+        <div class="fm">class FocalLoss(keras.losses.Loss):
+    """Focal Loss: da más peso a ejemplos difíciles.
+    Ideal para detección de objetos y desbalance extremo."""
+    def __init__(self, gamma=2.0, alpha=0.25, **kwargs):
+        super().__init__(**kwargs)
+        self.gamma = gamma
+        self.alpha = alpha
+
+    def call(self, y_true, y_pred):
+        y_pred = tf.clip_by_value(y_pred, 1e-7, 1 - 1e-7)
+        bce    = -(y_true * tf.math.log(y_pred) +
+                   (1 - y_true) * tf.math.log(1 - y_pred))
+        p_t    = y_true*y_pred + (1-y_true)*(1-y_pred)
+        alpha  = y_true*self.alpha + (1-y_true)*(1-self.alpha)
+        return tf.reduce_mean(alpha * (1-p_t)**self.gamma * bce)
+
+model.compile(optimizer='adam', loss=FocalLoss(gamma=2.0))</div>
+      </div>
+    </div>
+
+    <div class="apibox">
+      <div class="apihead" style="border-left:3px solid #0F6E56">Custom Metric — F1 Score stateful</div>
+      <div class="apibody">
+        <div class="fm">class F1Score(keras.metrics.Metric):
+    def __init__(self, threshold=0.5, **kwargs):
+        super().__init__(**kwargs)
+        self.threshold = threshold
+        self.tp = self.add_weight('tp', initializer='zeros')
+        self.fp = self.add_weight('fp', initializer='zeros')
+        self.fn = self.add_weight('fn', initializer='zeros')
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        preds = tf.cast(y_pred >= self.threshold, tf.float32)
+        y     = tf.cast(y_true, tf.float32)
+        self.tp.assign_add(tf.reduce_sum(y * preds))
+        self.fp.assign_add(tf.reduce_sum((1-y) * preds))
+        self.fn.assign_add(tf.reduce_sum(y * (1-preds)))
+
+    def result(self):
+        p = self.tp / (self.tp + self.fp + keras.backend.epsilon())
+        r = self.tp / (self.tp + self.fn + keras.backend.epsilon())
+        return 2 * p * r / (p + r + keras.backend.epsilon())
+
+    def reset_state(self):
+        self.tp.assign(0); self.fp.assign(0); self.fn.assign(0)
+
+model.compile(optimizer='adam', loss='bce',
+              metrics=[F1Score(name='f1')])</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 8. TRANSFER LEARNING ═══ -->
+  <div id="transfer" class="panel">
+    <h3>Transfer Learning y Fine-tuning</h3>
+    <p style="margin-bottom:1rem">Reutiliza pesos preentrenados en ImageNet, BERT, etc. Permite obtener excelentes resultados con pocos datos y menos tiempo de entrenamiento.</p>
+
+    <div class="step"><div class="sn">1</div><p>Cargar modelo base preentrenado sin la capa de clasificación original</p></div>
+    <div class="step"><div class="sn">2</div><p>Congelar todas las capas del base model (<code>trainable=False</code>)</p></div>
+    <div class="step"><div class="sn">3</div><p>Añadir nuevo clasificador sobre el base model con tus clases</p></div>
+    <div class="step"><div class="sn">4</div><p>Entrenar solo el clasificador (feature extraction) — LR normal</p></div>
+    <div class="step"><div class="sn">5</div><p>Descongelar las últimas N capas del base model</p></div>
+    <div class="step"><div class="sn">6</div><p>Re-entrenar con LR muy bajo (fine-tuning) — típico: 1e-5</p></div>
+
+    <div class="card cl lb" style="margin-top:1rem;margin-bottom:1rem">
+      <h4>Feature extraction — congelar base model</h4>
+      <div class="fm"># Cargar EfficientNetB0 preentrenado en ImageNet
+base = keras.applications.EfficientNetB0(
+    weights     = 'imagenet',
+    include_top = False,          # sin el clasificador original
+    input_shape = (224, 224, 3)
+)
+base.trainable = False            # ❄️ congelar todos los pesos
+
+# Construir nuevo clasificador
+inputs  = keras.Input(shape=(224, 224, 3))
+x       = base(inputs, training=False)
+x       = layers.GlobalAveragePooling2D()(x)
+x       = layers.Dropout(0.3)(x)
+outputs = layers.Dense(num_clases, activation='softmax')(x)
+model   = keras.Model(inputs, outputs)
+
+model.compile(
+    optimizer = keras.optimizers.Adam(1e-3),
+    loss      = 'sparse_categorical_crossentropy',
+    metrics   = ['accuracy']
+)
+model.fit(train_ds, epochs=10, validation_data=val_ds)</div>
+    </div>
+
+    <div class="card cl lp" style="margin-bottom:1rem">
+      <h4>Fine-tuning — descongelar capas superiores</h4>
+      <div class="fm">base.trainable = True              # descongelar todo
+
+# Congelar solo las primeras N capas (las más genéricas)
+fine_tune_at = 100
+for layer in base.layers[:fine_tune_at]:
+    layer.trainable = False
+
+print(f"Capas entrenables: {len([l for l in base.layers if l.trainable])}")
+
+# Recompilar con LR mucho más bajo para no destruir los pesos preentrenados
+model.compile(
+    optimizer = keras.optimizers.Adam(1e-5),   # 100× menor que antes
+    loss      = 'sparse_categorical_crossentropy',
+    metrics   = ['accuracy']
+)
+model.fit(train_ds, epochs=10,
+          validation_data=val_ds,
+          callbacks=[cb_early, cb_reduce])</div>
+    </div>
+
+    <h4 style="margin-bottom:.5rem">Modelos preentrenados disponibles en Keras</h4>
+    <table>
+      <tr><th>Modelo</th><th>Tarea</th><th>Parámetros</th><th>Código</th></tr>
+      <tr><td>EfficientNetB0-B7</td><td>Clasificación imágenes</td><td>5M–66M</td><td>keras.applications.EfficientNetB0()</td></tr>
+      <tr><td>ResNet50V2</td><td>Clasificación imágenes</td><td>25M</td><td>keras.applications.ResNet50V2()</td></tr>
+      <tr><td>MobileNetV3</td><td>Edge / móvil</td><td>5M</td><td>keras.applications.MobileNetV3Small()</td></tr>
+      <tr><td>VGG16</td><td>Clasificación imágenes</td><td>138M</td><td>keras.applications.VGG16()</td></tr>
+      <tr><td>InceptionV3</td><td>Clasificación imágenes</td><td>23M</td><td>keras.applications.InceptionV3()</td></tr>
+    </table>
+
+    <div class="cw" style="height:230px"><canvas id="cTransfer"></canvas></div>
+  </div>
+
+  <!-- ═══ 9. DESPLIEGUE ═══ -->
+  <div id="deploy" class="panel">
+    <h3>Guardar, cargar y desplegar</h3>
+
+    <div class="g2">
+      <div class="card cl lb">
+        <h4>Formato .keras (recomendado)</h4>
+        <div class="fm"># Guardar todo: arquitectura + pesos + optimizer
+model.save('modelo.keras')
+
+# Cargar
+model = keras.models.load_model('modelo.keras')
+
+# Solo pesos
+model.save_weights('pesos.weights.h5')
+model.load_weights('pesos.weights.h5')</div>
+      </div>
+      <div class="card cl lp">
+        <h4>SavedModel — TF Serving</h4>
+        <div class="fm"># Exportar como SavedModel
+model.export('saved_model_dir/')
+
+# Cargar y usar para inferencia
+loaded = tf.saved_model.load('saved_model_dir/')
+infer  = loaded.signatures['serving_default']
+result = infer(tf.constant(X_test, dtype=tf.float32))</div>
+      </div>
+      <div class="card cl lt">
+        <h4>TFLite — móvil y edge</h4>
+        <div class="fm">converter = tf.lite.TFLiteConverter.from_keras_model(model)
+
+# Cuantización INT8 → modelo 4× más pequeño
+converter.optimizations = [tf.lite.Optimize.DEFAULT]
+converter.target_spec.supported_types = [tf.int8]
+
+tflite_model = converter.convert()
+with open('modelo.tflite', 'wb') as f:
+    f.write(tflite_model)</div>
+      </div>
+      <div class="card cl la">
+        <h4>ONNX — interoperabilidad</h4>
+        <div class="fm"># pip install tf2onnx
+import tf2onnx
+
+spec = (tf.TensorSpec(
+    shape=(None, input_dim),
+    dtype=tf.float32,
+    name='input'),)
+
+model_proto, _ = tf2onnx.convert.from_keras(
+    model,
+    input_signature=spec,
+    output_path='modelo.onnx'
+)</div>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom:.75rem">Pipeline completo de producción</h4>
+    <div class="step"><div class="sn">1</div><p>Entrenar con <code>model.fit()</code> + callbacks (EarlyStopping + ModelCheckpoint)</p></div>
+    <div class="step"><div class="sn">2</div><p>Evaluar en test set: <code>model.evaluate(X_test, y_test)</code> — una sola vez</p></div>
+    <div class="step"><div class="sn">3</div><p>Guardar en formato <code>.keras</code> para reproducibilidad</p></div>
+    <div class="step"><div class="sn">4</div><p>Exportar a SavedModel para TF Serving (REST/gRPC) o ONNX para interop.</p></div>
+    <div class="step"><div class="sn">5</div><p>Para móvil/edge: TFLite con cuantización INT8 — 4× más pequeño</p></div>
+    <div class="step"><div class="sn">6</div><p>Monitorear en producción: latencia, drift de datos, métricas de negocio</p></div>
+
+    <div class="tip">💡 <strong>Checklist de entrenamiento:</strong> StandardScaler antes de entrenar · EarlyStopping activo · ModelCheckpoint guardando el mejor · LR scheduler configurado · Evaluar en test UNA SOLA VEZ al final</div>
+
+    <div class="cw" style="height:230px"><canvas id="cDeploy"></canvas></div>
+    <div class="leg" id="deployLeg"></div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p>Masterclass ML · <a href="index.html">← Volver al inicio</a></p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const tc='rgba(0,0,0,.45)', gc='rgba(0,0,0,.07)';
+const P=['#378ADD','#534AB7','#0F6E56','#BA7517','#A32D2D','#639922','#D4537E'];
+const rendered={};
+
+function show(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('active');
+  setTimeout(()=>draw(id),50);
+}
+
+function draw(id){
+  if(rendered[id])return; rendered[id]=true;
+  const bo={responsive:true,maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{x:{ticks:{color:tc},grid:{color:gc}},
+                    y:{ticks:{color:tc},grid:{color:gc}}}};
+
+  /* ── INTRO: barras comparativas de las 3 APIs ── */
+  if(id==='intro'){
+    const c=new Chart(document.getElementById('cIntro'),{type:'bar',
+      data:{labels:['Sequential','Functional','Subclassing'],
+            datasets:[
+              {label:'Simplicidad',  data:[9,6,3], backgroundColor:P[0]+'88',borderRadius:4},
+              {label:'Flexibilidad', data:[3,8,10],backgroundColor:P[1]+'88',borderRadius:4},
+              {label:'Control',      data:[3,7,10],backgroundColor:P[2]+'88',borderRadius:4},
+            ]},
+      options:{...bo,scales:{
+        x:{ticks:{color:tc},grid:{color:'transparent'}},
+        y:{min:0,max:10,ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Puntuación (0–10)',color:tc}}
+      }}});
+    const leg=document.getElementById('introLeg');
+    [['#378ADD88','Simplicidad'],['#534AB788','Flexibilidad'],['#0F6E5688','Control']].forEach(([c,n])=>
+      leg.innerHTML+=`<span><span class="ls" style="background:${c}"></span>${n}</span>`);
+  }
+
+  /* ── LAYERS: heatmap de uso de capas por tarea ── */
+  if(id==='layers'){
+    const tasks=['Tabular','Visión CNN','NLP seq.','Series temp.','Generativo'];
+    const datasets=[
+      {label:'Dense & Dropout',    data:[10,3,5,4,7], backgroundColor:P[0]+'99',borderRadius:3},
+      {label:'Conv2D & Pooling',   data:[2,10,3,5,6], backgroundColor:P[1]+'99',borderRadius:3},
+      {label:'LSTM & GRU',         data:[2,2,9,9,3],  backgroundColor:P[2]+'99',borderRadius:3},
+      {label:'BatchNorm',          data:[7,8,5,6,7],  backgroundColor:P[3]+'99',borderRadius:3},
+    ];
+    new Chart(document.getElementById('cLayers'),{type:'bar',data:{labels:tasks,datasets},
+      options:{...bo,scales:{
+        x:{ticks:{color:tc,maxRotation:0},grid:{color:'transparent'},stacked:true},
+        y:{min:0,max:25,ticks:{color:tc},grid:{color:gc},stacked:true,
+           title:{display:true,text:'Relevancia acumulada',color:tc}}
+      }}});
+    const leg=document.getElementById('layersLeg');
+    datasets.forEach(d=>leg.innerHTML+=`<span><span class="ls" style="background:${d.backgroundColor}"></span>${d.label}</span>`);
+  }
+
+  /* ── TRAIN: curvas de convergencia ── */
+  if(id==='train'){
+    const eps=Array.from({length:50},(_,i)=>i+1);
+    const tl=eps.map(e=>+(Math.max(.08,2.2*Math.exp(-.07*e)+.08)+Math.random()*.015).toFixed(3));
+    const vl=eps.map(e=>+(Math.max(.25,2.0*Math.exp(-.055*e)+.28)+Math.random()*.018).toFixed(3));
+    const ta=eps.map(e=>+(Math.min(.99,.35+.62*(1-Math.exp(-.07*e))+Math.random()*.01)).toFixed(3));
+    const va=eps.map(e=>+(Math.min(.95,.33+.58*(1-Math.exp(-.055*e))+Math.random()*.012)).toFixed(3));
+    new Chart(document.getElementById('cTrain'),{type:'line',data:{labels:eps,datasets:[
+      {data:tl,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false,yAxisID:'y'},
+      {data:vl,borderColor:P[1],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3],yAxisID:'y'},
+      {data:ta,borderColor:P[2],borderWidth:2,pointRadius:0,fill:false,yAxisID:'y2'},
+      {data:va,borderColor:P[3],borderWidth:2,pointRadius:0,fill:false,borderDash:[2,4],yAxisID:'y2'},
+    ]},options:{...bo,scales:{
+      x:{ticks:{color:tc,maxTicksLimit:10},grid:{color:gc},title:{display:true,text:'Época',color:tc}},
+      y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss',color:tc}},
+      y2:{type:'linear',position:'right',min:0,max:1,ticks:{color:tc},grid:{display:false},title:{display:true,text:'Accuracy',color:tc}}
+    }}});
+  }
+
+  /* ── TRANSFER: barras de accuracy por estrategia ── */
+  if(id==='transfer'){
+    new Chart(document.getElementById('cTransfer'),{type:'bar',
+      data:{labels:['Desde cero\n(100 imgs)','Desde cero\n(10k imgs)','Feature extr.\n(100 imgs)','Fine-tuning\n(100 imgs)','Fine-tuning\n(1k imgs)'],
+            datasets:[{
+              data:[0.52,0.81,0.84,0.89,0.94],
+              backgroundColor:[P[4]+'88',P[4]+'88',P[2]+'88',P[0]+'88',P[0]+'cc'],
+              borderRadius:5,label:'Val Accuracy'
+            }]},
+      options:{...bo,scales:{
+        x:{ticks:{color:tc,maxRotation:0,font:{size:10}},grid:{color:'transparent'}},
+        y:{min:0.4,max:1,ticks:{color:tc,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:gc},
+           title:{display:true,text:'Val accuracy',color:tc}}
+      }}});
+  }
+
+  /* ── DEPLOY: radar de formatos ── */
+  if(id==='deploy'){
+    const cats=['Velocidad\ninferencia','Tamaño\nmodelo','Portabilidad','Facilidad\ndespliegue','Soporte\nhardware'];
+    const formats=[
+      {n:'.keras / H5',  v:[6,5,5,9,7], c:P[0]},
+      {n:'SavedModel',   v:[7,6,7,8,8], c:P[1]},
+      {n:'TFLite',       v:[9,9,8,7,6], c:P[2]},
+      {n:'ONNX',         v:[8,7,10,7,9],c:P[3]},
+    ];
+    new Chart(document.getElementById('cDeploy'),{type:'radar',
+      data:{labels:cats,datasets:formats.map(f=>({
+        label:f.n,data:f.v,borderColor:f.c,backgroundColor:f.c+'18',borderWidth:2,pointBackgroundColor:f.c
+      }))},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+               scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:gc},pointLabels:{color:tc,font:{size:10}}}}}});
+    const leg=document.getElementById('deployLeg');
+    formats.forEach(f=>leg.innerHTML+=`<span><span class="ls" style="background:${f.c}"></span>${f.n}</span>`);
+  }
+}
+
+draw('intro');
+</script>
+</body>
+</html>
