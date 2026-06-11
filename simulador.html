@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Hiperparámetros — Sergio Dussán</title>
+<style>
+:root{
+  --bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;
+  --text:#111827;--muted:#6b7280;--accent:#378ADD;
+  --accent2:#534AB7;--green:#0F6E56;--amber:#BA7517;
+  --red:#A32D2D;--pink:#D4537E;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+     background:var(--bg);color:var(--text)}
+
+#progress-bar{position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,#378ADD,#534AB7,#D4537E);
+  width:0%;z-index:999;transition:width .1s}
+
+nav{background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);padding:0 2rem;
+    display:flex;align-items:center;justify-content:space-between;
+    height:62px;position:sticky;top:3px;z-index:100;
+    box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.nav-brand{font-weight:800;font-size:16px;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:1.2rem;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent)}
+.nav-author{font-size:12px;color:var(--muted);border-left:1px solid var(--border);padding-left:1rem;margin-left:.5rem}
+.nav-author span{color:var(--accent);font-weight:600}
+
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a5f,#534AB7);
+      color:white;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:.6rem}
+.hero p{opacity:.85;font-size:15px;max-width:600px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.15);
+            border:1px solid rgba(255,255,255,.3);padding:4px 14px;
+            border-radius:999px;font-size:12px;margin-bottom:1rem}
+
+.container{max-width:1100px;margin:0 auto;padding:2rem}
+
+/* MODEL TABS */
+.model-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem}
+.model-tab{padding:8px 18px;font-size:14px;border:1.5px solid var(--border);
+           border-radius:999px;background:var(--surface);color:var(--muted);
+           cursor:pointer;font-family:inherit;font-weight:500;transition:all .2s}
+.model-tab:hover{border-color:var(--accent);color:var(--accent)}
+.model-tab.active{background:var(--accent);color:white;border-color:var(--accent);
+                  box-shadow:0 2px 12px rgba(55,138,221,.35)}
+
+.sim-panel{display:none}.sim-panel.on{display:grid}
+
+/* SIMULATOR LAYOUT */
+.sim-grid{display:grid;grid-template-columns:300px 1fr;gap:1.5rem;align-items:start}
+@media(max-width:700px){.sim-grid{grid-template-columns:1fr}}
+
+.controls{background:var(--surface);border:1px solid var(--border);
+           border-radius:var(--radius);padding:1.25rem;position:sticky;top:80px}
+.controls h3{font-size:15px;font-weight:700;margin-bottom:1.1rem;color:var(--text)}
+
+.slider-group{margin-bottom:1.1rem}
+.slider-label{display:flex;justify-content:space-between;align-items:center;
+              margin-bottom:.35rem}
+.slider-name{font-size:13px;font-weight:600;color:var(--text)}
+.slider-val{font-size:13px;font-family:'Courier New',monospace;
+            color:var(--accent);font-weight:700;
+            background:#EBF4FF;padding:2px 8px;border-radius:6px}
+.slider-desc{font-size:11.5px;color:var(--muted);margin-bottom:.4rem;line-height:1.5}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;appearance:none;
+                  background:#e5e7eb;border-radius:999px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;
+  border-radius:50%;background:var(--accent);border:2px solid white;
+  box-shadow:0 1px 6px rgba(55,138,221,.4);cursor:pointer}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.15)}
+
+.effect-badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;
+              border-radius:6px;margin-top:.35rem}
+.eb-green{background:#dcfce7;color:#14532d}
+.eb-red{background:#fee2e2;color:#7f1d1d}
+.eb-amber{background:#fef9c3;color:#713f12}
+
+.chart-card{background:var(--surface);border:1px solid var(--border);
+            border-radius:var(--radius);padding:1.25rem}
+.chart-card h4{font-size:14px;font-weight:700;margin-bottom:1rem;color:var(--text)}
+.chart-wrap{position:relative;width:100%}
+
+.insight-box{background:linear-gradient(135deg,#f0f7ff,#f5f3ff);
+             border:1px solid #c4b5fd;border-radius:10px;
+             padding:.9rem 1rem;margin-top:1rem;font-size:13px;
+             color:#3730a3;line-height:1.6}
+.insight-box strong{display:block;margin-bottom:.2rem}
+
+.fm{font-family:'Courier New',monospace;font-size:12px;background:#f1f5f9;
+    padding:.6rem 1rem;border-radius:8px;color:#1e293b;margin:.75rem 0 0;
+    border:1px solid #e2e8f0;line-height:1.7;white-space:pre-wrap}
+
+footer{background:#0f172a;color:#94a3b8;text-align:center;padding:2rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--accent);
+          text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;
+          padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF}
+.back-btn:hover{background:var(--accent);color:white;border-color:var(--accent)}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.charts-row{grid-template-columns:1fr}}
+
+/* Reset btn */
+.reset-btn{width:100%;margin-top:1rem;padding:8px;border:1.5px dashed #e5e7eb;
+           border-radius:8px;background:transparent;color:var(--muted);
+           font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.reset-btn:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html">Regresión</a>
+    <a href="clasificacion.html">Clasificación</a>
+    <a href="simulador.html" class="active">🎛 Simulador</a>
+    <a href="redes-neuronales.html">Redes Neuronales</a>
+    <a href="keras.html">Keras</a>
+    <div class="nav-author">por <span>Sergio Dussán</span></div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">🎛 Herramienta interactiva</div>
+  <h1>Simulador de Hiperparámetros</h1>
+  <p>Mueve los sliders y observa en tiempo real cómo cambian las curvas de entrenamiento, las fronteras de decisión y el comportamiento de cada modelo.</p>
+</div>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+
+  <div class="model-tabs">
+    <button class="model-tab active" onclick="showSim('ridge',this)">📐 Ridge / Lasso</button>
+    <button class="model-tab" onclick="showSim('svm',this)">🎯 SVM</button>
+    <button class="model-tab" onclick="showSim('tree',this)">🌳 Árbol de Decisión</button>
+    <button class="model-tab" onclick="showSim('nn',this)">🧠 Red Neuronal (MLP)</button>
+    <button class="model-tab" onclick="showSim('kmeans',this)">🔵 K-Means</button>
+    <button class="model-tab" onclick="showSim('lr_schedule',this)">📉 Learning Rate</button>
+  </div>
+
+  <!-- ═══ RIDGE / LASSO ═══ -->
+  <div id="sim-ridge" class="sim-panel on">
+    <div class="sim-grid">
+      <div class="controls">
+        <h3>⚙️ Hiperparámetros</h3>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">alpha (α)</span>
+            <span class="slider-val" id="ridge-alpha-val">1.00</span>
+          </div>
+          <div class="slider-desc">Fuerza de regularización. Mayor α → coeficientes más pequeños.</div>
+          <input type="range" id="ridge-alpha" min="-3" max="3" step="0.05" value="0"
+                 oninput="updateRidge()">
+          <span class="effect-badge" id="ridge-alpha-badge" style="background:#dcfce7;color:#14532d">Regularización moderada</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Tipo de penalización</span>
+          </div>
+          <div class="slider-desc">L2 (Ridge): encoge coeficientes. L1 (Lasso): lleva a cero.</div>
+          <select id="reg-type" onchange="updateRidge()"
+            style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;
+                   font-size:13px;font-family:inherit;background:var(--surface);color:var(--text)">
+            <option value="ridge">Ridge (L2)</option>
+            <option value="lasso">Lasso (L1)</option>
+            <option value="elasticnet">ElasticNet (L1+L2)</option>
+          </select>
+        </div>
+
+        <div class="slider-group" id="l1-ratio-group" style="display:none">
+          <div class="slider-label">
+            <span class="slider-name">l1_ratio</span>
+            <span class="slider-val" id="l1-ratio-val">0.50</span>
+          </div>
+          <div class="slider-desc">0 = Ridge puro · 1 = Lasso puro</div>
+          <input type="range" id="l1-ratio" min="0" max="1" step="0.01" value="0.5"
+                 oninput="updateRidge()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Noise (ruido datos)</span>
+            <span class="slider-val" id="ridge-noise-val">0.50</span>
+          </div>
+          <div class="slider-desc">Cantidad de ruido en los datos generados.</div>
+          <input type="range" id="ridge-noise" min="0.1" max="2" step="0.05" value="0.5"
+                 oninput="updateRidge()">
+        </div>
+
+        <button class="reset-btn" onclick="resetRidge()">↺ Restablecer valores</button>
+
+        <div class="fm" id="ridge-code">model = Ridge(alpha=1.0)
+model.fit(X_train_scaled, y_train)</div>
+      </div>
+
+      <div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>Coeficientes del modelo</h4>
+            <div class="chart-wrap" style="height:220px">
+              <canvas id="chart-ridge-coefs"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h4>Ajuste al dato (feat. 0 vs target)</h4>
+            <div class="chart-wrap" style="height:220px">
+              <canvas id="chart-ridge-fit"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card" style="margin-top:1rem">
+          <h4>Regularization path — coeficientes vs alpha</h4>
+          <div class="chart-wrap" style="height:200px">
+            <canvas id="chart-ridge-path"></canvas>
+          </div>
+        </div>
+        <div class="insight-box" id="ridge-insight">
+          <strong>💡 Interpretación</strong>
+          Ajusta alpha para ver cómo la regularización encoge los coeficientes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SVM ═══ -->
+  <div id="sim-svm" class="sim-panel">
+    <div class="sim-grid">
+      <div class="controls">
+        <h3>⚙️ Hiperparámetros SVM</h3>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">C (penalización)</span>
+            <span class="slider-val" id="svm-c-val">1.00</span>
+          </div>
+          <div class="slider-desc">Alto C → más flexible, puede sobreajustar. Bajo C → margen más amplio.</div>
+          <input type="range" id="svm-c" min="-2" max="3" step="0.1" value="0"
+                 oninput="updateSVM()">
+          <span class="effect-badge eb-green" id="svm-c-badge">Margen equilibrado</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">gamma (kernel RBF)</span>
+            <span class="slider-val" id="svm-gamma-val">0.10</span>
+          </div>
+          <div class="slider-desc">Alto gamma → cada punto influye localmente. Bajo → influencia global.</div>
+          <input type="range" id="svm-gamma" min="-3" max="2" step="0.1" value="-1"
+                 oninput="updateSVM()">
+          <span class="effect-badge eb-green" id="svm-gamma-badge">Influencia moderada</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Noise (separación clases)</span>
+            <span class="slider-val" id="svm-noise-val">0.30</span>
+          </div>
+          <div class="slider-desc">Solape entre clases. Mayor → más difícil de separar.</div>
+          <input type="range" id="svm-noise" min="0.05" max="0.8" step="0.05" value="0.3"
+                 oninput="updateSVM()">
+        </div>
+
+        <button class="reset-btn" onclick="resetSVM()">↺ Restablecer valores</button>
+        <div class="fm" id="svm-code">SVC(kernel='rbf',
+    C=1.0,
+    gamma=0.10)</div>
+      </div>
+
+      <div>
+        <div class="chart-card">
+          <h4>Frontera de decisión SVM (2D simulada)</h4>
+          <div class="chart-wrap" style="height:300px">
+            <canvas id="chart-svm-boundary"></canvas>
+          </div>
+        </div>
+        <div class="charts-row" style="margin-top:1rem">
+          <div class="chart-card">
+            <h4>Curva de validación — C</h4>
+            <div class="chart-wrap" style="height:180px">
+              <canvas id="chart-svm-val-c"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h4>Curva de validación — gamma</h4>
+            <div class="chart-wrap" style="height:180px">
+              <canvas id="chart-svm-val-g"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="insight-box" id="svm-insight">
+          <strong>💡 Interpretación</strong>
+          Ajusta C y gamma para ver el efecto en la frontera de decisión y el overfitting.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ÁRBOL ═══ -->
+  <div id="sim-tree" class="sim-panel">
+    <div class="sim-grid">
+      <div class="controls">
+        <h3>⚙️ Hiperparámetros Árbol</h3>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">max_depth</span>
+            <span class="slider-val" id="tree-depth-val">3</span>
+          </div>
+          <div class="slider-desc">Profundidad máxima. Mayor → más complejo, más riesgo de overfitting.</div>
+          <input type="range" id="tree-depth" min="1" max="12" step="1" value="3"
+                 oninput="updateTree()">
+          <span class="effect-badge eb-green" id="tree-depth-badge">Profundidad controlada</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">min_samples_split</span>
+            <span class="slider-val" id="tree-mss-val">2</span>
+          </div>
+          <div class="slider-desc">Mínimo de muestras para dividir un nodo. Mayor → árbol más simple.</div>
+          <input type="range" id="tree-mss" min="2" max="50" step="1" value="2"
+                 oninput="updateTree()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">min_samples_leaf</span>
+            <span class="slider-val" id="tree-msl-val">1</span>
+          </div>
+          <div class="slider-desc">Mínimo de muestras en una hoja. Previene hojas con muy pocos ejemplos.</div>
+          <input type="range" id="tree-msl" min="1" max="30" step="1" value="1"
+                 oninput="updateTree()">
+        </div>
+
+        <button class="reset-btn" onclick="resetTree()">↺ Restablecer valores</button>
+        <div class="fm" id="tree-code">DecisionTreeClassifier(
+    max_depth=3,
+    min_samples_split=2,
+    min_samples_leaf=1
+)</div>
+      </div>
+
+      <div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h4>Train vs Val Accuracy por profundidad</h4>
+            <div class="chart-wrap" style="height:230px">
+              <canvas id="chart-tree-depth"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h4>Complejidad del árbol (nodos estimados)</h4>
+            <div class="chart-wrap" style="height:230px">
+              <canvas id="chart-tree-nodes"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card" style="margin-top:1rem">
+          <h4>Bias-Variance Tradeoff</h4>
+          <div class="chart-wrap" style="height:190px">
+            <canvas id="chart-tree-bv"></canvas>
+          </div>
+        </div>
+        <div class="insight-box" id="tree-insight">
+          <strong>💡 Interpretación</strong>
+          Aumenta max_depth para ver cómo el árbol sobreajusta a los datos de entrenamiento.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RED NEURONAL ═══ -->
+  <div id="sim-nn" class="sim-panel">
+    <div class="sim-grid">
+      <div class="controls">
+        <h3>⚙️ Hiperparámetros MLP</h3>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Learning rate (η)</span>
+            <span class="slider-val" id="nn-lr-val">1e-3</span>
+          </div>
+          <div class="slider-desc">Tamaño del paso en el descenso por gradiente.</div>
+          <input type="range" id="nn-lr" min="1" max="7" step="1" value="4"
+                 oninput="updateNN()">
+          <span class="effect-badge" id="nn-lr-badge" style="background:#dcfce7;color:#14532d">Balance ideal</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Dropout rate</span>
+            <span class="slider-val" id="nn-dropout-val">0.30</span>
+          </div>
+          <div class="slider-desc">Fracción de neuronas apagadas en cada paso. 0 = sin Dropout.</div>
+          <input type="range" id="nn-dropout" min="0" max="0.7" step="0.05" value="0.3"
+                 oninput="updateNN()">
+          <span class="effect-badge" id="nn-dropout-badge" style="background:#dcfce7;color:#14532d">Regularización moderada</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Neuronas por capa</span>
+            <span class="slider-val" id="nn-units-val">64</span>
+          </div>
+          <div class="slider-desc">Capacidad de la red. Más neuronas → más expresiva, más lenta.</div>
+          <input type="range" id="nn-units" min="8" max="512" step="8" value="64"
+                 oninput="updateNN()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Capas ocultas</span>
+            <span class="slider-val" id="nn-layers-val">2</span>
+          </div>
+          <div class="slider-desc">Número de capas Dense ocultas.</div>
+          <input type="range" id="nn-layers" min="1" max="6" step="1" value="2"
+                 oninput="updateNN()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Batch size</span>
+            <span class="slider-val" id="nn-batch-val">32</span>
+          </div>
+          <div class="slider-desc">Muestras por actualización. Más pequeño → más ruido, más generalización.</div>
+          <input type="range" id="nn-batch" min="0" max="5" step="1" value="1"
+                 oninput="updateNN()">
+        </div>
+
+        <button class="reset-btn" onclick="resetNN()">↺ Restablecer valores</button>
+        <div class="fm" id="nn-code">model = Sequential([
+  Dense(64, activation='relu'),
+  Dropout(0.30),
+  Dense(64, activation='relu'),
+  Dense(1, activation='sigmoid')
+])
+model.compile(
+  optimizer=Adam(lr=1e-3)
+)</div>
+      </div>
+
+      <div>
+        <div class="chart-card">
+          <h4>Curvas de entrenamiento simuladas</h4>
+          <div class="chart-wrap" style="height:260px">
+            <canvas id="chart-nn-curves"></canvas>
+          </div>
+        </div>
+        <div class="charts-row" style="margin-top:1rem">
+          <div class="chart-card">
+            <h4>Parámetros totales del modelo</h4>
+            <div class="chart-wrap" style="height:170px">
+              <canvas id="chart-nn-params"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h4>Efecto del learning rate</h4>
+            <div class="chart-wrap" style="height:170px">
+              <canvas id="chart-nn-lr-effect"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="insight-box" id="nn-insight">
+          <strong>💡 Interpretación</strong>
+          Prueba distintas combinaciones de LR y Dropout para observar el trade-off entre convergencia y generalización.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ K-MEANS ═══ -->
+  <div id="sim-kmeans" class="sim-panel">
+    <div class="sim-grid">
+      <div class="controls">
+        <h3>⚙️ Hiperparámetros K-Means</h3>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">K (clusters)</span>
+            <span class="slider-val" id="km-k-val">3</span>
+          </div>
+          <div class="slider-desc">Número de clusters. El Elbow method ayuda a elegirlo.</div>
+          <input type="range" id="km-k" min="2" max="10" step="1" value="3"
+                 oninput="updateKMeans()">
+          <span class="effect-badge eb-green" id="km-k-badge">K razonable</span>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Clusters reales</span>
+            <span class="slider-val" id="km-true-val">3</span>
+          </div>
+          <div class="slider-desc">Cuántos grupos hay realmente en los datos.</div>
+          <input type="range" id="km-true" min="2" max="8" step="1" value="3"
+                 oninput="updateKMeans()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Dispersión (std)</span>
+            <span class="slider-val" id="km-std-val">0.80</span>
+          </div>
+          <div class="slider-desc">Dispersión de cada cluster. Mayor → clusters más solapados.</div>
+          <input type="range" id="km-std" min="0.2" max="2.0" step="0.1" value="0.8"
+                 oninput="updateKMeans()">
+        </div>
+
+        <button class="reset-btn" onclick="resetKMeans()">↺ Restablecer valores</button>
+        <div class="fm" id="km-code">KMeans(n_clusters=3,
+       init='k-means++',
+       n_init=10,
+       random_state=42)</div>
+      </div>
+
+      <div>
+        <div class="chart-card">
+          <h4>Datos y clusters asignados por K-Means</h4>
+          <div class="chart-wrap" style="height:280px">
+            <canvas id="chart-km-scatter"></canvas>
+          </div>
+        </div>
+        <div class="charts-row" style="margin-top:1rem">
+          <div class="chart-card">
+            <h4>Elbow Method (Inercia vs K)</h4>
+            <div class="chart-wrap" style="height:180px">
+              <canvas id="chart-km-elbow"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h4>Silhouette Score vs K</h4>
+            <div class="chart-wrap" style="height:180px">
+              <canvas id="chart-km-sil"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="insight-box" id="km-insight">
+          <strong>💡 Interpretación</strong>
+          Cambia K y observa cómo cambia la inercia. El codo del Elbow indica el K óptimo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ LEARNING RATE ═══ -->
+  <div id="sim-lr_schedule" class="sim-panel">
+    <div class="sim-grid">
+      <div class="controls">
+        <h3>⚙️ Learning Rate Scheduling</h3>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">LR inicial</span>
+            <span class="slider-val" id="lrs-init-val">1e-2</span>
+          </div>
+          <div class="slider-desc">Learning rate de partida.</div>
+          <input type="range" id="lrs-init" min="1" max="6" step="1" value="3"
+                 oninput="updateLRSchedule()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Tipo de schedule</span>
+          </div>
+          <select id="lrs-type" onchange="updateLRSchedule()"
+            style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;
+                   font-size:13px;font-family:inherit;background:var(--surface);color:var(--text)">
+            <option value="constant">Sin scheduler (constante)</option>
+            <option value="step">Step Decay (×0.5 cada 20 épocas)</option>
+            <option value="exp">Exponential Decay</option>
+            <option value="cosine">Cosine Annealing</option>
+            <option value="warmup">Warmup + Cosine</option>
+            <option value="plateau">ReduceLR on Plateau</option>
+          </select>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Épocas totales</span>
+            <span class="slider-val" id="lrs-epochs-val">100</span>
+          </div>
+          <input type="range" id="lrs-epochs" min="20" max="200" step="10" value="100"
+                 oninput="updateLRSchedule()">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Decay factor</span>
+            <span class="slider-val" id="lrs-decay-val">0.50</span>
+          </div>
+          <div class="slider-desc">Factor de reducción del LR (para Step y Exponential).</div>
+          <input type="range" id="lrs-decay" min="0.1" max="0.95" step="0.05" value="0.5"
+                 oninput="updateLRSchedule()">
+        </div>
+
+        <button class="reset-btn" onclick="resetLRSchedule()">↺ Restablecer valores</button>
+        <div class="fm" id="lrs-code">ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.5,
+    patience=5
+)</div>
+      </div>
+
+      <div>
+        <div class="chart-card">
+          <h4>Curva de Learning Rate a lo largo de las épocas</h4>
+          <div class="chart-wrap" style="height:240px">
+            <canvas id="chart-lrs-curve"></canvas>
+          </div>
+        </div>
+        <div class="chart-card" style="margin-top:1rem">
+          <h4>Pérdida simulada con este schedule</h4>
+          <div class="chart-wrap" style="height:210px">
+            <canvas id="chart-lrs-loss"></canvas>
+          </div>
+        </div>
+        <div class="insight-box" id="lrs-insight">
+          <strong>💡 Interpretación</strong>
+          Compara distintos schedules y observa su efecto en la convergencia de la pérdida.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <p style="font-weight:700;color:white;margin-bottom:.4rem">🎛 Simulador de Hiperparámetros</p>
+  <p>Diseñado por <strong style="color:white">Sergio Dussán</strong> · <a href="index.html">← Volver al inicio</a></p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ═══ UTILIDADES ═══ */
+const tc='rgba(0,0,0,.45)', gc='rgba(0,0,0,.07)';
+const P=['#378ADD','#534AB7','#0F6E56','#BA7517','#A32D2D','#639922','#D4537E','#888'];
+const charts={};
+
+function getChart(id, type, data, options){
+  if(charts[id]) charts[id].destroy();
+  const ctx=document.getElementById(id);
+  if(!ctx) return;
+  charts[id]=new Chart(ctx,{type,data,options});
+  return charts[id];
+}
+
+function bo(extraScales={}){
+  return {responsive:true,maintainAspectRatio:false,animation:{duration:300},
+          plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:tc,maxTicksLimit:8},grid:{color:gc}},
+                  y:{ticks:{color:tc},grid:{color:gc}},...extraScales}};
+}
+
+/* Panel switch */
+function showSim(id,btn){
+  document.querySelectorAll('.sim-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.model-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sim-'+id).classList.add('on');
+  btn.classList.add('active');
+  setTimeout(()=>{ if(id==='ridge') updateRidge();
+                   else if(id==='svm') updateSVM();
+                   else if(id==='tree') updateTree();
+                   else if(id==='nn') updateNN();
+                   else if(id==='kmeans') updateKMeans();
+                   else if(id==='lr_schedule') updateLRSchedule(); }, 60);
+}
+
+/* Reading progress */
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  document.getElementById('progress-bar').style.width=
+    (h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+});
+
+/* ─────────────────────────────────────────
+   RIDGE / LASSO SIMULATOR
+───────────────────────────────────────── */
+const RIDGE_DEFAULTS={alpha:0, noise:0.5, l1ratio:0.5, type:'ridge'};
+function resetRidge(){
+  document.getElementById('ridge-alpha').value=RIDGE_DEFAULTS.alpha;
+  document.getElementById('ridge-noise').value=RIDGE_DEFAULTS.noise;
+  document.getElementById('l1-ratio').value=RIDGE_DEFAULTS.l1ratio;
+  document.getElementById('reg-type').value=RIDGE_DEFAULTS.type;
+  updateRidge();
+}
+
+function updateRidge(){
+  const alpha=Math.pow(10, +document.getElementById('ridge-alpha').value);
+  const noise=+document.getElementById('ridge-noise').value;
+  const regType=document.getElementById('reg-type').value;
+  const l1ratio=+document.getElementById('l1-ratio').value;
+
+  document.getElementById('ridge-alpha-val').textContent=alpha.toFixed(alpha<0.01?4:alpha<1?2:1);
+  document.getElementById('ridge-noise-val').textContent=noise.toFixed(2);
+  document.getElementById('l1-ratio-val').textContent=l1ratio.toFixed(2);
+  document.getElementById('l1-ratio-group').style.display=regType==='elasticnet'?'block':'none';
+
+  /* Badge alpha */
+  const ab=document.getElementById('ridge-alpha-badge');
+  if(alpha<0.01){ab.className='effect-badge eb-red';ab.textContent='⚠️ Muy bajo — riesgo overfitting'}
+  else if(alpha<0.1){ab.className='effect-badge eb-amber';ab.textContent='LR bajo — poca regularización'}
+  else if(alpha<10){ab.className='effect-badge eb-green';ab.textContent='Regularización moderada'}
+  else if(alpha<100){ab.className='effect-badge eb-amber';ab.textContent='Regularización fuerte'}
+  else{ab.className='effect-badge eb-red';ab.textContent='⚠️ Muy alto — riesgo underfitting'}
+
+  /* Coeficientes simulados */
+  const nFeats=8;
+  const baseCoefs=[2.8,1.9,-1.5,0.8,2.2,-0.6,1.1,-1.8];
+  let coefs;
+  if(regType==='lasso'){
+    coefs=baseCoefs.map(c=>{
+      const shrink=Math.max(0,Math.abs(c)-alpha*0.5)*Math.sign(c);
+      return shrink;
+    });
+  } else if(regType==='elasticnet'){
+    coefs=baseCoefs.map(c=>{
+      const l2=c/(1+alpha*(1-l1ratio));
+      const lasso_shrink=Math.max(0,Math.abs(l2)-alpha*l1ratio*0.3)*Math.sign(l2);
+      return lasso_shrink;
+    });
+  } else {
+    coefs=baseCoefs.map(c=>c/(1+alpha*0.4));
+  }
+
+  const labels=['feat_1','feat_2','feat_3','feat_4','feat_5','feat_6','feat_7','feat_8'];
+  getChart('chart-ridge-coefs','bar',{
+    labels,
+    datasets:[
+      {label:'Original',data:baseCoefs,backgroundColor:'rgba(163,45,45,.25)',borderRadius:4},
+      {label:'Regularizado',data:coefs,backgroundColor:coefs.map(c=>c===0?'#ccc':P[1]+'BB'),borderRadius:4}
+    ]
+  },{...bo(),plugins:{legend:{display:false}},scales:{
+    x:{ticks:{color:tc,font:{size:10}},grid:{color:'transparent'}},
+    y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Coeficiente',color:tc}}
+  }});
+
+  /* Scatter fit */
+  const seed=(s)=>{let v=s;return()=>{v=(v*1664525+1013904223)&0x7fffffff;return v/0x7fffffff;}};
+  const rng=seed(42);
+  const xs=Array.from({length:60},()=>rng()*6-3);
+  const ys=xs.map(x=>baseCoefs[0]*x+(rng()-.5)*noise*4);
+  const linX=[-3,3];
+  const linY=linX.map(x=>coefs[0]*x);
+
+  getChart('chart-ridge-fit','scatter',{
+    datasets:[
+      {data:xs.map((x,i)=>({x,y:ys[i]})),backgroundColor:'rgba(55,138,221,.4)',pointRadius:3,label:'Datos'},
+      {data:linX.map((x,i)=>({x,y:linY[i]})),type:'line',borderColor:P[1],borderWidth:2.5,pointRadius:0,fill:false,label:'Ajuste'},
+    ]
+  },{...bo(),plugins:{legend:{display:false}},layout:{padding:10}});
+
+  /* Regularization path */
+  const alphaPath=Array.from({length:40},(_,i)=>Math.pow(10,-3+i*6/39));
+  const pathData=baseCoefs.map((bc,fi)=>({
+    label:'f'+fi,
+    data:alphaPath.map(a=>regType==='lasso'?
+      Math.max(0,Math.abs(bc)-a*0.5)*Math.sign(bc):
+      bc/(1+a*0.4)),
+    borderColor:P[fi%P.length],borderWidth:1.8,pointRadius:0,fill:false
+  }));
+
+  getChart('chart-ridge-path','line',{
+    labels:alphaPath.map(a=>a.toFixed(3)),datasets:pathData
+  },{...bo(),plugins:{legend:{display:false}},scales:{
+    x:{ticks:{color:tc,maxTicksLimit:6},grid:{color:gc},title:{display:true,text:'Alpha',color:tc}},
+    y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Coeficiente',color:tc}}
+  }});
+
+  /* Código */
+  const typeMap={ridge:'Ridge',lasso:'Lasso',elasticnet:'ElasticNet'};
+  const extraParam=regType==='elasticnet'?`\n    l1_ratio=${l1ratio.toFixed(2)},`:'';
+  document.getElementById('ridge-code').textContent=
+    `${typeMap[regType]}(alpha=${alpha.toFixed(alpha<0.01?4:2)},${extraParam}\n    max_iter=1000)`;
+
+  /* Insight */
+  const zeroCoefs=coefs.filter(c=>Math.abs(c)<0.01).length;
+  document.getElementById('ridge-insight').innerHTML=
+    `<strong>💡 Interpretación actual</strong>
+    Alpha = ${alpha.toFixed(alpha<0.01?4:2)} · Tipo: ${typeMap[regType]}
+    ${zeroCoefs>0?`<br>🔴 <strong>${zeroCoefs} features</strong> tienen coeficiente ≈ 0 (Lasso/ElasticNet hacen selección)`:
+    '<br>✅ Todos los features contribuyen (Ridge no hace selección)'}
+    ${alpha>50?'<br>⚠️ Alpha muy alto: posible underfitting — modelo demasiado simple':''}`;
+}
+
+/* ─────────────────────────────────────────
+   SVM SIMULATOR
+───────────────────────────────────────── */
+const SVM_DEFAULTS={c:0, gamma:-1, noise:0.3};
+function resetSVM(){
+  document.getElementById('svm-c').value=SVM_DEFAULTS.c;
+  document.getElementById('svm-gamma').value=SVM_DEFAULTS.gamma;
+  document.getElementById('svm-noise').value=SVM_DEFAULTS.noise;
+  updateSVM();
+}
+
+function updateSVM(){
+  const C=Math.pow(10,+document.getElementById('svm-c').value);
+  const gamma=Math.pow(10,+document.getElementById('svm-gamma').value);
+  const noise=+document.getElementById('svm-noise').value;
+
+  document.getElementById('svm-c-val').textContent=C.toFixed(C<10?2:0);
+  document.getElementById('svm-gamma-val').textContent=gamma.toFixed(4);
+  document.getElementById('svm-noise-val').textContent=noise.toFixed(2);
+
+  const cb=document.getElementById('svm-c-badge');
+  if(C<0.1){cb.className='effect-badge eb-amber';cb.textContent='Margen muy amplio — posible underfitting'}
+  else if(C<10){cb.className='effect-badge eb-green';cb.textContent='Margen equilibrado'}
+  else if(C<100){cb.className='effect-badge eb-amber';cb.textContent='Margen ajustado — riesgo overfitting'}
+  else{cb.className='effect-badge eb-red';cb.textContent='⚠️ C muy alto — overfitting probable'}
+
+  const gb=document.getElementById('svm-gamma-badge');
+  if(gamma<0.01){gb.className='effect-badge eb-amber';gb.textContent='Influencia global — frontera suave'}
+  else if(gamma<0.5){gb.className='effect-badge eb-green';gb.textContent='Influencia moderada'}
+  else if(gamma<5){gb.className='effect-badge eb-amber';gb.textContent='Influencia local — frontera irregular'}
+  else{gb.className='effect-badge eb-red';gb.textContent='⚠️ Gamma muy alto — overfitting'}
+
+  /* Scatter 2D con frontera simulada */
+  const seed=(s)=>{let v=s;return()=>{v=(v*1664525+1013904223)&0x7fffffff;return v/0x7fffffff;}};
+  const rng=seed(99);
+  const n=60;
+  const cls0=Array.from({length:n},()=>({x:(rng()-.5)*4-1.5, y:(rng()-.5)*4}));
+  const cls1=Array.from({length:n},()=>({x:(rng()-.5)*4+1.5, y:(rng()-.5)*4}));
+  cls0.forEach(p=>{p.x+=( rng()-.5)*noise*3; p.y+=(rng()-.5)*noise*3});
+  cls1.forEach(p=>{p.x+=( rng()-.5)*noise*3; p.y+=(rng()-.5)*noise*3});
+
+  /* Curva de frontera de decisión aproximada */
+  const boundaryX=Array.from({length:50},(_,i)=>-4+i*8/49);
+  const complexityFactor=Math.log10(C+1)*0.5*gamma;
+  const boundaryY=boundaryX.map(x=>
+    complexityFactor*Math.sin(x*gamma*0.8)*1.5 + 0*(x));
+
+  getChart('chart-svm-boundary','scatter',{datasets:[
+    {data:cls0,backgroundColor:'rgba(55,138,221,.55)',pointRadius:5,label:'Clase 0'},
+    {data:cls1,backgroundColor:'rgba(163,45,45,.55)',pointRadius:5,label:'Clase 1'},
+    {data:boundaryX.map((x,i)=>({x,y:boundaryY[i]})),type:'line',
+     borderColor:'#534AB7',borderWidth:2.5,pointRadius:0,fill:false,
+     borderDash:complexityFactor<0.5?[6,4]:[],label:'Frontera'},
+  ]},{...bo(),layout:{padding:10},plugins:{legend:{display:false}}});
+
+  /* Curva de validación C */
+  const Cvals=Array.from({length:20},(_,i)=>Math.pow(10,-2+i*5/19));
+  const trainC=Cvals.map(c=>Math.min(.99,.72+.18*Math.log10(c+1)));
+  const valC=Cvals.map(c=>{
+    const opt=1/noise;
+    const dist=Math.abs(Math.log10(c+.01)-Math.log10(opt+.01));
+    return Math.max(.6,.86-dist*.12-(noise>.5?.05:0));
+  });
+
+  getChart('chart-svm-val-c','line',{
+    labels:Cvals.map(c=>c.toFixed(2)),datasets:[
+      {data:trainC,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false},
+      {data:valC,  borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3]},
+    ]
+  },{...bo(),scales:{
+    x:{ticks:{color:tc,maxTicksLimit:5},grid:{color:gc},title:{display:true,text:'log(C)',color:tc}},
+    y:{min:.5,max:1,ticks:{color:tc,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:gc}}
+  }});
+
+  /* Curva de validación gamma */
+  const gvals=Array.from({length:20},(_,i)=>Math.pow(10,-3+i*5/19));
+  const trainG=gvals.map(g=>Math.min(.99,.7+.2*Math.log10(g*10+1)));
+  const valG=gvals.map(g=>{
+    const dist=Math.abs(Math.log10(g+1e-4)-Math.log10(0.1+1e-4));
+    return Math.max(.55,.84-dist*.15-(noise>.5?.06:0));
+  });
+
+  getChart('chart-svm-val-g','line',{
+    labels:gvals.map(g=>g.toFixed(3)),datasets:[
+      {data:trainG,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false},
+      {data:valG,  borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3]},
+    ]
+  },{...bo(),scales:{
+    x:{ticks:{color:tc,maxTicksLimit:5},grid:{color:gc},title:{display:true,text:'log(gamma)',color:tc}},
+    y:{min:.5,max:1,ticks:{color:tc,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:gc}}
+  }});
+
+  document.getElementById('svm-code').textContent=
+    `SVC(kernel='rbf',\n    C=${C.toFixed(C<10?2:0)},\n    gamma=${gamma.toFixed(4)})`;
+
+  document.getElementById('svm-insight').innerHTML=
+    `<strong>💡 Interpretación actual</strong>
+    C=${C.toFixed(2)} · gamma=${gamma.toFixed(4)} · noise=${noise.toFixed(2)}<br>
+    ${C>50||gamma>2?'⚠️ Riesgo de <strong>overfitting</strong>: C o gamma demasiado altos':''}
+    ${C<0.1?'⚠️ C muy bajo: posible <strong>underfitting</strong>, frontera demasiado suave':''}
+    ${C>0.1&&C<50&&gamma<2?'✅ Configuración razonable para este dataset':''}`;
+}
+
+/* ─────────────────────────────────────────
+   DECISION TREE SIMULATOR
+───────────────────────────────────────── */
+const TREE_DEFAULTS={depth:3, mss:2, msl:1};
+function resetTree(){
+  document.getElementById('tree-depth').value=TREE_DEFAULTS.depth;
+  document.getElementById('tree-mss').value=TREE_DEFAULTS.mss;
+  document.getElementById('tree-msl').value=TREE_DEFAULTS.msl;
+  updateTree();
+}
+
+function updateTree(){
+  const depth=+document.getElementById('tree-depth').value;
+  const mss=+document.getElementById('tree-mss').value;
+  const msl=+document.getElementById('tree-msl').value;
+
+  document.getElementById('tree-depth-val').textContent=depth;
+  document.getElementById('tree-mss-val').textContent=mss;
+  document.getElementById('tree-msl-val').textContent=msl;
+
+  const db=document.getElementById('tree-depth-badge');
+  if(depth<=3){db.className='effect-badge eb-green';db.textContent='Profundidad controlada'}
+  else if(depth<=6){db.className='effect-badge eb-amber';db.textContent='Profundidad moderada'}
+  else if(depth<=9){db.className='effect-badge eb-amber';db.textContent='⚠️ Riesgo de overfitting'}
+  else{db.className='effect-badge eb-red';db.textContent='⚠️ Overfitting muy probable'}
+
+  const depths=Array.from({length:14},(_,i)=>i+1);
+  const trainAcc=depths.map(d=>Math.min(.99,.65+.034*d-0.0005*d*d));
+  const valAcc=depths.map(d=>{
+    const penalty=(msl<3?.01:0)+(mss<5?.005:0);
+    return Math.max(.62,.88-Math.max(0,d-4)*.025-penalty*(d-4));
+  });
+
+  getChart('chart-tree-depth','line',{labels:depths,datasets:[
+    {data:trainAcc,borderColor:P[0],borderWidth:2.5,pointRadius:4,fill:false,
+     label:'Train',pointBackgroundColor:depths.map(d=>d===depth?P[0]:'transparent'),
+     pointBorderWidth:depths.map(d=>d===depth?2:0)},
+    {data:valAcc,  borderColor:P[4],borderWidth:2.5,pointRadius:4,fill:false,borderDash:[5,3],
+     label:'Validación',pointBackgroundColor:depths.map(d=>d===depth?P[4]:'transparent'),
+     pointBorderWidth:depths.map(d=>d===depth?2:0)},
+  ]},{...bo(),scales:{
+    x:{title:{display:true,text:'max_depth',color:tc},ticks:{color:tc},grid:{color:gc}},
+    y:{min:.6,max:1,ticks:{color:tc,callback:v=>(v*100).toFixed(0)+'%'},grid:{color:gc}}
+  }});
+
+  /* Nodes chart */
+  const nodes=depths.map(d=>{
+    const raw=Math.pow(2,d+1)-1;
+    const mssEffect=Math.max(0,1-mss*0.02);
+    const mslEffect=Math.max(0,1-msl*0.015);
+    return Math.round(raw*mssEffect*mslEffect);
+  });
+
+  getChart('chart-tree-nodes','bar',{labels:depths,datasets:[{
+    data:nodes,backgroundColor:depths.map(d=>d===depth?P[1]:P[1]+'55'),borderRadius:4
+  }]},{...bo(),scales:{
+    x:{title:{display:true,text:'max_depth',color:tc},ticks:{color:tc},grid:{color:'transparent'}},
+    y:{title:{display:true,text:'Nodos estimados',color:tc},ticks:{color:tc},grid:{color:gc}}
+  }});
+
+  /* BV tradeoff */
+  const bias=depths.map(d=>Math.max(0.01,.35*Math.exp(-0.35*d)));
+  const variance=depths.map(d=>0.01+0.005*Math.pow(d,1.8));
+  const totalErr=depths.map((_,i)=>bias[i]+variance[i]+0.05);
+
+  getChart('chart-tree-bv','line',{labels:depths,datasets:[
+    {data:bias,    borderColor:P[3],borderWidth:2,pointRadius:0,fill:false,label:'Bias²'},
+    {data:variance,borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,label:'Varianza',borderDash:[5,3]},
+    {data:totalErr,borderColor:P[1],borderWidth:2.5,pointRadius:0,fill:false,label:'Error total'},
+  ]},{...bo(),scales:{
+    x:{title:{display:true,text:'max_depth',color:tc},ticks:{color:tc},grid:{color:gc}},
+    y:{title:{display:true,text:'Error',color:tc},ticks:{color:tc},grid:{color:gc}}
+  }});
+
+  document.getElementById('tree-code').textContent=
+    `DecisionTreeClassifier(\n    max_depth=${depth},\n    min_samples_split=${mss},\n    min_samples_leaf=${msl}\n)`;
+
+  const trainVal=trainAcc[depth-1], valVal=valAcc[depth-1];
+  const gap=trainVal-valVal;
+  document.getElementById('tree-insight').innerHTML=
+    `<strong>💡 Interpretación actual</strong>
+    depth=${depth} · mss=${mss} · msl=${msl}<br>
+    Train Acc ≈ ${(trainVal*100).toFixed(1)}% · Val Acc ≈ ${(valVal*100).toFixed(1)}%<br>
+    Brecha: ${(gap*100).toFixed(1)}%
+    ${gap>.12?'<br>⚠️ <strong>Overfitting</strong>: brecha grande entre train y validación':
+     gap<.03?'<br>✅ Buen equilibrio bias-varianza':'<br>⚠️ Brecha moderada — considera regularizar'}`;
+}
+
+/* ─────────────────────────────────────────
+   NEURAL NETWORK SIMULATOR
+───────────────────────────────────────── */
+const LR_VALS=['1e-5','1e-4','5e-4','1e-3','5e-3','1e-2','1e-1'];
+const BATCH_VALS=[4,16,32,64,128,256];
+const NN_DEFAULTS={lr:4, dropout:0.3, units:64, layers:2, batch:1};
+
+function resetNN(){
+  document.getElementById('nn-lr').value=NN_DEFAULTS.lr;
+  document.getElementById('nn-dropout').value=NN_DEFAULTS.dropout;
+  document.getElementById('nn-units').value=NN_DEFAULTS.units;
+  document.getElementById('nn-layers').value=NN_DEFAULTS.layers;
+  document.getElementById('nn-batch').value=NN_DEFAULTS.batch;
+  updateNN();
+}
+
+function updateNN(){
+  const lrIdx=+document.getElementById('nn-lr').value;
+  const dropout=+document.getElementById('nn-dropout').value;
+  const units=+document.getElementById('nn-units').value;
+  const nlayers=+document.getElementById('nn-layers').value;
+  const batchIdx=+document.getElementById('nn-batch').value;
+  const batchSize=BATCH_VALS[batchIdx];
+
+  document.getElementById('nn-lr-val').textContent=LR_VALS[lrIdx-1];
+  document.getElementById('nn-dropout-val').textContent=dropout.toFixed(2);
+  document.getElementById('nn-units-val').textContent=units;
+  document.getElementById('nn-layers-val').textContent=nlayers;
+  document.getElementById('nn-batch-val').textContent=batchSize;
+
+  const lrb=document.getElementById('nn-lr-badge');
+  const lrHints=[
+    {cls:'eb-red',t:'LR muy bajo — convergencia mínima'},
+    {cls:'eb-amber',t:'LR bajo — convergencia lenta'},
+    {cls:'eb-amber',t:'LR bajo-medio'},
+    {cls:'eb-green',t:'Balance ideal — Adam default'},
+    {cls:'eb-amber',t:'LR alto — puede oscilar'},
+    {cls:'eb-red',t:'LR alto — inestabilidad'},
+    {cls:'eb-red',t:'⚠️ LR excesivo — divergencia'},
+  ];
+  lrb.className='effect-badge '+lrHints[lrIdx-1].cls;
+  lrb.textContent=lrHints[lrIdx-1].t;
+
+  const db=document.getElementById('nn-dropout-badge');
+  if(dropout===0){db.className='effect-badge eb-red';db.textContent='Sin regularización'}
+  else if(dropout<0.2){db.className='effect-badge eb-amber';db.textContent='Regularización suave'}
+  else if(dropout<0.5){db.className='effect-badge eb-green';db.textContent='Regularización moderada'}
+  else{db.className='effect-badge eb-amber';db.textContent='Regularización fuerte'}
+
+  /* Parámetros totales */
+  const inputDim=20;
+  let params=0, prevDim=inputDim;
+  for(let i=0;i<nlayers;i++){params+=(prevDim*units+units);prevDim=units;}
+  params+=(prevDim*1+1);
+  document.getElementById('nn-params').textContent=
+    params>1e6?(params/1e6).toFixed(2)+'M':params.toLocaleString();
+
+  /* Curvas de entrenamiento */
+  const epochs=Array.from({length:60},(_,i)=>i+1);
+  const lrEffect=lrIdx<=2?0.5:lrIdx<=4?1:lrIdx<=5?0.8:0.3;
+  const dropEffect=dropout<0.1?0.7:dropout<0.3?0.9:dropout<0.5?1:0.85;
+  const capacityEffect=Math.min(1,units/128)*Math.min(1,nlayers/3);
+
+  const tl=epochs.map(e=>Math.max(.06, (2.2/(lrEffect+.1))*
+    Math.exp(-(lrEffect*.07+.01)*e)+.06+(Math.random()-.5)*.02));
+  const vl=epochs.map(e=>{
+    const base=Math.max(.18,(2.0/(lrEffect+.1))*Math.exp(-(lrEffect*.055+.008)*e)+.25);
+    const reg=dropout>.2?-0.03:0.05;
+    return Math.max(.15,base+reg+(lrIdx>5?0.15:0)+(Math.random()-.5)*.025);
+  });
+
+  getChart('chart-nn-curves','line',{labels:epochs,datasets:[
+    {data:tl,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false,label:'Train loss',yAxisID:'y'},
+    {data:vl,borderColor:P[4],borderWidth:2,pointRadius:0,fill:false,borderDash:[5,3],label:'Val loss',yAxisID:'y'},
+  ]},{...bo(),scales:{
+    x:{ticks:{color:tc,maxTicksLimit:10},grid:{color:gc},title:{display:true,text:'Época',color:tc}},
+    y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss',color:tc}},
+  }});
+
+  /* Params bar */
+  const layerCounts=[1,2,3,4,5,6];
+  const paramsByLayer=layerCounts.map(nl=>{
+    let p=0,prev=inputDim;
+    for(let i=0;i<nl;i++){p+=(prev*units+units);prev=units;}
+    return p+(prev*1+1);
+  });
+
+  getChart('chart-nn-params','bar',{
+    labels:layerCounts.map(l=>l+' capa'+(l>1?'s':'')),
+    datasets:[{
+      data:paramsByLayer,
+      backgroundColor:layerCounts.map(l=>l===nlayers?P[1]:P[1]+'44'),
+      borderRadius:4
+    }]
+  },{...bo(),scales:{
+    x:{ticks:{color:tc,font:{size:10}},grid:{color:'transparent'}},
+    y:{ticks:{color:tc,callback:v=>v>999?Math.round(v/1000)+'k':v},grid:{color:gc}}
+  }});
+
+  /* LR effect on loss */
+  const lrVals2=[1e-5,1e-4,5e-4,1e-3,5e-3,1e-2,1e-1];
+  const finalLoss=lrVals2.map(lr=>{
+    if(lr<1e-4) return 1.2;
+    if(lr<5e-4) return 0.7;
+    if(lr<2e-3) return 0.25+dropout*.2;
+    if(lr<1e-2) return 0.4+dropout*.15;
+    return 0.9;
+  });
+
+  getChart('chart-nn-lr-effect','line',{
+    labels:lrVals2.map(l=>l.toExponential(0)),
+    datasets:[{data:finalLoss,borderColor:P[3],borderWidth:2.5,pointRadius:5,
+               pointBackgroundColor:lrVals2.map((_,i)=>i===lrIdx-1?P[3]:'white'),
+               pointBorderColor:P[3],fill:false}]
+  },{...bo(),scales:{
+    x:{ticks:{color:tc,font:{size:10}},grid:{color:gc},title:{display:true,text:'Learning rate',color:tc}},
+    y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss final',color:tc}}
+  }});
+
+  document.getElementById('nn-code').textContent=
+`model = Sequential([
+${Array.from({length:nlayers},(_,i)=>`  Dense(${units}, activation='relu'),\n  Dropout(${dropout.toFixed(2)}),`).join('\n')}
+  Dense(1, activation='sigmoid')
+])
+model.compile(optimizer=Adam(lr=${LR_VALS[lrIdx-1]}))`;
+
+  document.getElementById('nn-insight').innerHTML=
+    `<strong>💡 Interpretación actual</strong>
+    LR=${LR_VALS[lrIdx-1]} · Dropout=${dropout.toFixed(2)} · ${nlayers} capas × ${units} neuronas<br>
+    Parámetros totales: <strong>${params.toLocaleString()}</strong><br>
+    Batch size: ${batchSize} (${batchSize<32?'ruido ↑, generalización potencialmente ↑':batchSize>128?'estable, más rápido':'equilibrado'})
+    ${lrIdx>5?'<br>⚠️ LR muy alto — considera reducirlo':''}
+    ${dropout<0.1&&nlayers>3?'<br>⚠️ Sin Dropout en red profunda — riesgo de overfitting':''}`;
+}
+
+/* ─────────────────────────────────────────
+   K-MEANS SIMULATOR
+───────────────────────────────────────── */
+const KM_DEFAULTS={k:3, trueK:3, std:0.8};
+function resetKMeans(){
+  document.getElementById('km-k').value=KM_DEFAULTS.k;
+  document.getElementById('km-true').value=KM_DEFAULTS.trueK;
+  document.getElementById('km-std').value=KM_DEFAULTS.std;
+  updateKMeans();
+}
+
+function updateKMeans(){
+  const K=+document.getElementById('km-k').value;
+  const trueK=+document.getElementById('km-true').value;
+  const std=+document.getElementById('km-std').value;
+
+  document.getElementById('km-k-val').textContent=K;
+  document.getElementById('km-true-val').textContent=trueK;
+  document.getElementById('km-std-val').textContent=std.toFixed(2);
+
+  const kb=document.getElementById('km-k-badge');
+  if(K===trueK){kb.className='effect-badge eb-green';kb.textContent='✅ K coincide con clusters reales'}
+  else if(Math.abs(K-trueK)===1){kb.className='effect-badge eb-amber';kb.textContent='K cercano al óptimo'}
+  else{kb.className='effect-badge eb-red';kb.textContent='⚠️ K muy distinto del óptimo'}
+
+  /* Generar datos */
+  const seed=(s)=>{let v=s;return()=>{v=(v*1664525+1013904223)&0x7fffffff;return v/0x7fffffff;}};
+  const rng=seed(7);
+  const angles=Array.from({length:trueK},(_,i)=>i*2*Math.PI/trueK);
+  const radius=2.5;
+  const centers=angles.map(a=>([Math.cos(a)*radius, Math.sin(a)*radius]));
+  const nPerCluster=20;
+  const allPoints=[];
+  centers.forEach(([cx,cy],ci)=>{
+    for(let i=0;i<nPerCluster;i++){
+      allPoints.push({x:cx+(rng()-.5)*std*3, y:cy+(rng()-.5)*std*3, c:ci});
+    }
+  });
+
+  /* Asignar clusters K-Means (simplificado) */
+  const kCenters=Array.from({length:K},(_,i)=>{
+    const a=i*2*Math.PI/K+.3;
+    return {x:Math.cos(a)*radius*1.1, y:Math.sin(a)*radius*1.1};
+  });
+  const assigned=allPoints.map(p=>{
+    let bestD=Infinity, bestK=0;
+    kCenters.forEach((c,ki)=>{
+      const d=Math.sqrt((p.x-c.x)**2+(p.y-c.y)**2);
+      if(d<bestD){bestD=d;bestK=ki;}
+    });
+    return bestK;
+  });
+
+  const datasets=Array.from({length:K},(_,ki)=>({
+    data:allPoints.filter((_,i)=>assigned[i]===ki).map(p=>({x:p.x,y:p.y})),
+    backgroundColor:P[ki%P.length]+'99',pointRadius:5,label:'Cluster '+ki
+  }));
+  datasets.push({data:kCenters.map(c=>({x:c.x,y:c.y})),
+    backgroundColor:'black',pointRadius:10,pointStyle:'cross',label:'Centroides',
+    type:'scatter'});
+
+  getChart('chart-km-scatter','scatter',{datasets},{
+    ...bo(),layout:{padding:10},plugins:{legend:{display:false}}});
+
+  /* Elbow method */
+  const Ks=Array.from({length:9},(_,i)=>i+2);
+  const inertia=Ks.map(k=>{
+    const optimal=k>=trueK;
+    const base=1000/k + std*200;
+    return optimal?base:base+(trueK-k)*300*std;
+  });
+
+  getChart('chart-km-elbow','line',{labels:Ks,datasets:[
+    {data:inertia,borderColor:P[0],borderWidth:2.5,pointRadius:5,fill:false,
+     pointBackgroundColor:Ks.map(k=>k===K?P[0]:'white'),pointBorderColor:P[0]}
+  ]},{...bo(),scales:{
+    x:{title:{display:true,text:'K',color:tc},ticks:{color:tc},grid:{color:gc}},
+    y:{title:{display:true,text:'Inercia',color:tc},ticks:{color:tc},grid:{color:gc}}
+  }});
+
+  /* Silhouette */
+  const silhouette=Ks.map(k=>{
+    const dist=Math.abs(k-trueK);
+    const base=0.85-dist*0.1-std*0.08;
+    return Math.max(0.1,Math.min(0.95,base+(k===trueK?0.05:0)));
+  });
+
+  getChart('chart-km-sil','line',{labels:Ks,datasets:[
+    {data:silhouette,borderColor:P[2],borderWidth:2.5,pointRadius:5,fill:false,
+     pointBackgroundColor:Ks.map(k=>k===K?P[2]:'white'),pointBorderColor:P[2]}
+  ]},{...bo(),scales:{
+    x:{title:{display:true,text:'K',color:tc},ticks:{color:tc},grid:{color:gc}},
+    y:{min:0,max:1,title:{display:true,text:'Silhouette',color:tc},ticks:{color:tc},grid:{color:gc}}
+  }});
+
+  document.getElementById('km-code').textContent=
+    `KMeans(n_clusters=${K},\n       init='k-means++',\n       n_init=10,\n       random_state=42)`;
+
+  const optK=Ks[silhouette.indexOf(Math.max(...silhouette))];
+  document.getElementById('km-insight').innerHTML=
+    `<strong>💡 Interpretación actual</strong>
+    K elegido: ${K} · Clusters reales: ${trueK} · Dispersión: ${std.toFixed(2)}<br>
+    K óptimo (Silhouette máximo): <strong>K=${optK}</strong><br>
+    ${K===trueK?'✅ K perfecto — coincide con la estructura real de los datos':
+     K<trueK?`⚠️ K muy pequeño: ${trueK-K} cluster(s) combinados incorrectamente`:
+     `⚠️ K muy grande: ${K-trueK} cluster(s) artificiales innecesarios`}`;
+}
+
+/* ─────────────────────────────────────────
+   LEARNING RATE SCHEDULE SIMULATOR
+───────────────────────────────────────── */
+const LRS_DEFAULTS={init:3, type:'cosine', epochs:100, decay:0.5};
+function resetLRSchedule(){
+  document.getElementById('lrs-init').value=LRS_DEFAULTS.init;
+  document.getElementById('lrs-type').value=LRS_DEFAULTS.type;
+  document.getElementById('lrs-epochs').value=LRS_DEFAULTS.epochs;
+  document.getElementById('lrs-decay').value=LRS_DEFAULTS.decay;
+  updateLRSchedule();
+}
+
+function updateLRSchedule(){
+  const initIdx=+document.getElementById('lrs-init').value;
+  const schedType=document.getElementById('lrs-type').value;
+  const totalEpochs=+document.getElementById('lrs-epochs').value;
+  const decay=+document.getElementById('lrs-decay').value;
+
+  const initLR=Math.pow(10,-(initIdx));
+  document.getElementById('lrs-init-val').textContent=initLR.toExponential(0);
+  document.getElementById('lrs-decay-val').textContent=decay.toFixed(2);
+  document.getElementById('lrs-epochs-val').textContent=totalEpochs;
+
+  const epochs=Array.from({length:totalEpochs},(_,i)=>i);
+
+  /* Compute LR schedule */
+  const lrCurve=epochs.map(e=>{
+    const t=e/totalEpochs;
+    switch(schedType){
+      case 'constant': return initLR;
+      case 'step':
+        const step=Math.floor(e/20);
+        return initLR*Math.pow(decay,step);
+      case 'exp':
+        return initLR*Math.pow(decay,e/10);
+      case 'cosine':
+        return initLR*0.5*(1+Math.cos(Math.PI*t));
+      case 'warmup':
+        if(e<10) return initLR*(e/10);
+        return initLR*0.5*(1+Math.cos(Math.PI*(e-10)/(totalEpochs-10)));
+      case 'plateau':
+        let lr=initLR;
+        [20,40,55,65].forEach(ep=>{if(e>=ep) lr*=decay;});
+        return lr;
+    }
+  });
+
+  getChart('chart-lrs-curve','line',{
+    labels:epochs,
+    datasets:[{
+      data:lrCurve,borderColor:P[1],borderWidth:2.5,
+      pointRadius:0,fill:true,
+      backgroundColor:'rgba(83,74,183,.1)'
+    }]
+  },{...bo(),scales:{
+    x:{title:{display:true,text:'Época',color:tc},ticks:{color:tc,maxTicksLimit:10},grid:{color:gc}},
+    y:{type:'linear',title:{display:true,text:'Learning rate',color:tc},ticks:{color:tc},grid:{color:gc}}
+  }});
+
+  /* Simulated loss with this schedule */
+  const lossCurve=epochs.map(e=>{
+    const lr=lrCurve[e];
+    const lrNorm=Math.log10(lr/initLR+1e-10);
+    const base=2.2*Math.exp(-e/totalEpochs*4*Math.sqrt(lr/initLR+.01))+ .08;
+    const noise=(Math.random()-.5)*.04;
+    return Math.max(.06,base+noise+(schedType==='constant'?0:-.05));
+  });
+
+  getChart('chart-lrs-loss','line',{
+    labels:epochs,datasets:[
+      {data:lossCurve,borderColor:P[0],borderWidth:2,pointRadius:0,fill:false,label:'Loss'},
+    ]
+  },{...bo(),scales:{
+    x:{ticks:{color:tc,maxTicksLimit:10},grid:{color:gc},title:{display:true,text:'Época',color:tc}},
+    y:{ticks:{color:tc},grid:{color:gc},title:{display:true,text:'Loss',color:tc}}
+  }});
+
+  /* Código */
+  const codeMap={
+    constant:'# Sin scheduler\noptimizer = Adam(lr='+initLR.toExponential(0)+')',
+    step:`LearningRateScheduler(\n    lambda e, lr: lr * ${decay.toFixed(2)}\n    if e % 20 == 0 else lr)`,
+    exp:`ExponentialDecay(\n    initial_learning_rate=${initLR.toExponential(0)},\n    decay_steps=10,\n    decay_rate=${decay.toFixed(2)})`,
+    cosine:`CosineDecay(\n    initial_learning_rate=${initLR.toExponential(0)},\n    decay_steps=${totalEpochs})`,
+    warmup:`# WarmupCosine (10 épocas warmup)\ninitial_lr = ${initLR.toExponential(0)}`,
+    plateau:`ReduceLROnPlateau(\n    monitor='val_loss',\n    factor=${decay.toFixed(2)},\n    patience=5)`,
+  };
+  document.getElementById('lrs-code').textContent=codeMap[schedType];
+
+  const minLR=Math.min(...lrCurve), maxLR=Math.max(...lrCurve);
+  document.getElementById('lrs-insight').innerHTML=
+    `<strong>💡 Interpretación: ${schedType}</strong><br>
+    LR inicial: ${initLR.toExponential(0)} · LR final: ${minLR.toExponential(1)}<br>
+    Rango: ${maxLR.toExponential(1)} → ${minLR.toExponential(1)}<br>
+    ${schedType==='constant'?'⚠️ Sin scheduler: el LR nunca cambia — puede estancarse cerca del óptimo':''}
+    ${schedType==='warmup'?'✅ Warmup: evita gradientes inestables al inicio del entrenamiento':''}
+    ${schedType==='cosine'?'✅ Cosine: transición suave, ampliamente usado en Transformers y CNNs':''}
+    ${schedType==='plateau'?'✅ ReduceLR on Plateau: adaptativo — reduce cuando la pérdida se estanca':''}`;
+}
+
+/* ─── Inicializar simulador activo ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  updateRidge();
+});
+</script>
+</body>
+</html>
