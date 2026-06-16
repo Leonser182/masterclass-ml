@@ -3,88 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Masterclass ML — Inicio</title>
+<title>Masterclass ML — Sergio Dussán</title>
 <style>
-  :root {
-    --bg: #f8f9fa; --surface: #ffffff; --border: #e5e7eb;
-    --text: #111827; --muted: #6b7280; --accent: #378ADD;
-    --radius: 12px; --shadow: 0 2px 12px rgba(0,0,0,.08);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-         background: var(--bg); color: var(--text); }
+:root{
+  --bg:#f8f9fa;--surface:#ffffff;--border:#e5e7eb;
+  --text:#111827;--muted:#6b7280;--accent:#378ADD;
+  --accent2:#534AB7;--radius:12px;
+  --shadow:0 2px 16px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+     background:var(--bg);color:var(--text);overflow-x:hidden}
 
-  /* NAV */
-  nav { background: var(--surface); border-bottom: 1px solid var(--border);
-        padding: 0 2rem; display: flex; align-items: center;
-        justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-  .nav-brand { font-weight: 700; font-size: 18px; color: var(--accent); text-decoration: none; }
-  .nav-links { display: flex; gap: 1.5rem; }
-  .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px;
-                 transition: color .2s; }
-  .nav-links a:hover { color: var(--accent); }
+/* ── PROGRESS BAR ── */
+#progress-bar{position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,#378ADD,#534AB7,#D4537E);
+  width:0%;z-index:999;transition:width .1s}
 
-  /* HERO */
-  .hero { background: linear-gradient(135deg, #1e3a5f 0%, #378ADD 60%, #534AB7 100%);
-          color: white; padding: 5rem 2rem 4rem; text-align: center; }
-  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; margin-bottom: 1rem; }
-  .hero p  { font-size: 1.1rem; opacity: .85; max-width: 620px; margin: 0 auto 2rem; }
-  .hero-badges { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
-  .hero-badge { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
-                padding: 4px 14px; border-radius: 999px; font-size: 13px; }
+/* ── NAV ── */
+nav{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);padding:0 2rem;
+    display:flex;align-items:center;justify-content:space-between;
+    height:62px;position:sticky;top:3px;z-index:100;
+    box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.nav-brand{font-weight:800;font-size:17px;color:var(--accent);
+           text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-links{display:flex;gap:1.2rem;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;
+             transition:color .2s;font-weight:500}
+.nav-links a:hover{color:var(--accent)}
+.nav-author{font-size:12px;color:var(--muted);border-left:1px solid var(--border);
+            padding-left:1rem;margin-left:.5rem}
+.nav-author span{color:var(--accent);font-weight:600}
 
-  /* STATS */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
-           gap: 1px; background: var(--border); border-top: 1px solid var(--border); }
-  .stat  { background: var(--surface); padding: 1.5rem; text-align: center; }
-  .stat-val  { font-size: 2rem; font-weight: 700; color: var(--accent); }
-  .stat-label{ font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* ── HERO ── */
+.hero{position:relative;overflow:hidden;
+      background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 40%,#378ADD 75%,#534AB7 100%);
+      color:white;padding:6rem 2rem 5rem;text-align:center}
+#hero-canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:.35;pointer-events:none}
+.hero-content{position:relative;z-index:2}
+.hero-author{display:inline-block;background:rgba(255,255,255,.12);
+             border:1px solid rgba(255,255,255,.25);padding:4px 16px;
+             border-radius:999px;font-size:12px;margin-bottom:1.25rem;
+             backdrop-filter:blur(8px)}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;margin-bottom:1rem;
+         letter-spacing:-.02em;line-height:1.1}
+.hero h1 span{background:linear-gradient(90deg,#7dd3fc,#c4b5fd);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.05rem;opacity:.85;max-width:600px;margin:0 auto 2rem;line-height:1.7}
+.hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.hero-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+            padding:5px 14px;border-radius:999px;font-size:12.5px;
+            backdrop-filter:blur(4px);transition:background .2s}
+.hero-badge:hover{background:rgba(255,255,255,.22)}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;
+          background:white;color:#1e3a5f;padding:12px 28px;
+          border-radius:999px;font-weight:700;font-size:15px;
+          text-decoration:none;transition:transform .2s,box-shadow .2s;
+          box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
 
-  /* GRID */
-  .section { padding: 3rem 2rem; max-width: 1100px; margin: 0 auto; }
-  .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: .4rem; }
-  .section-sub   { color: var(--muted); font-size: 15px; margin-bottom: 2rem; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1.25rem; }
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+       gap:1px;background:var(--border)}
+.stat{background:var(--surface);padding:1.75rem 1rem;text-align:center}
+.stat-val{font-size:2.2rem;font-weight:800;color:var(--accent)}
+.stat-label{font-size:13px;color:var(--muted);margin-top:4px}
 
-  /* CARD */
-  .card { background: var(--surface); border: 1px solid var(--border);
-          border-radius: var(--radius); overflow: hidden;
-          transition: transform .2s, box-shadow .2s; text-decoration: none; color: inherit;
-          display: flex; flex-direction: column; }
-  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-  .card-bar  { height: 5px; }
-  .card-body { padding: 1.4rem; flex: 1; }
-  .card-icon { font-size: 2rem; margin-bottom: .75rem; }
-  .card-title{ font-size: 1.1rem; font-weight: 700; margin-bottom: .4rem; }
-  .card-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
-  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .card-tag  { font-size: 11px; padding: 2px 9px; border-radius: 999px;
-               background: #f0f4ff; color: #3b5bdb; border: 1px solid #dbe4ff; }
-  .card-foot { padding: .9rem 1.4rem; border-top: 1px solid var(--border);
-               display: flex; align-items: center; justify-content: space-between;
-               font-size: 13px; color: var(--muted); background: #fafafa; }
-  .card-cta  { color: var(--accent); font-weight: 600; font-size: 13px; }
+/* ── SEARCH ── */
+.search-wrap{max-width:600px;margin:2.5rem auto 0;position:relative}
+.search-input{width:100%;padding:12px 20px 12px 46px;border:1.5px solid var(--border);
+              border-radius:999px;font-size:14px;background:var(--surface);
+              color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;
+              font-family:inherit}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(55,138,221,.15)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);
+             color:var(--muted);font-size:16px;pointer-events:none}
+.search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;
+                background:var(--surface);border:1px solid var(--border);
+                border-radius:var(--radius);box-shadow:var(--shadow);
+                display:none;z-index:200;overflow:hidden}
+.search-item{padding:10px 16px;font-size:13px;cursor:pointer;
+             border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:#f5f7ff}
+.search-item-icon{font-size:16px}
+.search-item-title{font-weight:600;color:var(--text)}
+.search-item-sub{color:var(--muted);font-size:12px}
 
-  /* GUIDE */
-  .guide { background: var(--surface); border: 1px solid var(--border);
-           border-radius: var(--radius); padding: 2rem; margin-bottom: 3rem; }
-  .guide h2  { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem; }
-  .steps     { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; }
-  .gstep     { display: flex; gap: .75rem; align-items: flex-start; }
-  .gstep-num { min-width: 28px; height: 28px; border-radius: 50%;
-               background: var(--accent); color: white; display: flex;
-               align-items: center; justify-content: center; font-size: 13px;
-               font-weight: 700; flex-shrink: 0; }
-  .gstep-txt strong { display: block; font-size: 14px; margin-bottom: 2px; }
-  .gstep-txt span   { font-size: 13px; color: var(--muted); }
+/* ── SECTION ── */
+.section{padding:3.5rem 2rem;max-width:1100px;margin:0 auto}
+.section-title{font-size:1.6rem;font-weight:800;margin-bottom:.4rem}
+.section-sub{color:var(--muted);font-size:15px;margin-bottom:2rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.25rem}
 
-  /* FOOTER */
-  footer { background: #1e293b; color: #94a3b8; text-align: center;
-           padding: 2rem; font-size: 13px; }
-  footer a { color: #7dd3fc; text-decoration: none; }
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);overflow:hidden;
+      transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;
+      text-decoration:none;color:inherit;display:flex;flex-direction:column;
+      opacity:0;transform:translateY(24px)}
+.card.visible{opacity:1;transform:translateY(0);transition:opacity .5s ease, transform .5s ease, box-shadow .25s, transform .25s cubic-bezier(.34,1.56,.64,1)}
+.card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.12)}
+.card-bar{height:5px}
+.card-body{padding:1.5rem;flex:1}
+.card-icon{font-size:2.2rem;margin-bottom:.85rem;display:block}
+.card-title{font-size:1.1rem;font-weight:700;margin-bottom:.45rem}
+.card-desc{font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:1rem}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.card-tag{font-size:11px;padding:2px 9px;border-radius:999px;
+          background:#f0f4ff;color:#3b5bdb;border:1px solid #dbe4ff}
+.card-foot{padding:.9rem 1.5rem;border-top:1px solid var(--border);
+           display:flex;align-items:center;justify-content:space-between;
+           font-size:13px;color:var(--muted);background:#fafafa}
+.card-cta{color:var(--accent);font-weight:700;font-size:13px;
+          display:flex;align-items:center;gap:4px}
+
+/* ── GUIDE ── */
+.guide{background:linear-gradient(135deg,#f0f7ff,#f5f3ff);
+       border:1px solid #ddd6fe;border-radius:16px;
+       padding:2rem;margin-bottom:3rem}
+.guide h2{font-size:1.2rem;font-weight:800;margin-bottom:1.25rem;color:#3730a3}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.gstep{display:flex;gap:.75rem;align-items:flex-start}
+.gstep-num{min-width:30px;height:30px;border-radius:50%;
+           background:var(--accent);color:white;
+           display:flex;align-items:center;justify-content:center;
+           font-size:13px;font-weight:700;flex-shrink:0;
+           box-shadow:0 2px 8px rgba(55,138,221,.4)}
+.gstep-txt strong{display:block;font-size:14px;margin-bottom:2px;color:#1e293b}
+.gstep-txt span{font-size:13px;color:var(--muted)}
+
+/* ── QUIZ TEASER ── */
+.quiz-teaser{background:linear-gradient(135deg,#1e3a5f,#534AB7);
+             color:white;border-radius:16px;padding:2rem;
+             display:flex;align-items:center;justify-content:space-between;
+             gap:1.5rem;flex-wrap:wrap;margin-bottom:2rem}
+.quiz-teaser h3{font-size:1.2rem;font-weight:800;margin-bottom:.4rem}
+.quiz-teaser p{font-size:14px;opacity:.85}
+.quiz-btn{background:white;color:#1e3a5f;padding:10px 24px;border-radius:999px;
+          font-weight:700;font-size:14px;border:none;cursor:pointer;
+          white-space:nowrap;transition:transform .2s;text-decoration:none;display:inline-block}
+.quiz-btn:hover{transform:scale(1.05)}
+
+/* ── AUTHOR SECTION ── */
+.author-section{background:var(--surface);border:1px solid var(--border);
+                border-radius:16px;padding:2rem;display:flex;gap:1.5rem;
+                align-items:center;flex-wrap:wrap;margin-bottom:3rem}
+.author-avatar{width:72px;height:72px;border-radius:50%;
+               background:linear-gradient(135deg,#378ADD,#534AB7);
+               display:flex;align-items:center;justify-content:center;
+               font-size:2rem;flex-shrink:0;color:white;font-weight:700}
+.author-info h3{font-size:1.1rem;font-weight:700;margin-bottom:.3rem}
+.author-info p{font-size:14px;color:var(--muted);line-height:1.6}
+.author-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:.65rem}
+.author-tag{font-size:11px;padding:2px 9px;border-radius:999px;
+            background:#f0f4ff;color:#3b5bdb;border:1px solid #dbe4ff}
+
+/* ── FOOTER ── */
+footer{background:#0f172a;color:#94a3b8;text-align:center;padding:2.5rem;font-size:13px}
+footer a{color:#7dd3fc;text-decoration:none}
+footer .footer-brand{font-size:1.1rem;font-weight:700;color:white;margin-bottom:.5rem}
+footer .footer-sub{margin-top:.5rem;font-size:12px;opacity:.7}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero-content>*{animation:fadeInUp .7s ease both}
+.hero-author{animation-delay:.1s}
+.hero h1{animation-delay:.2s}
+.hero p{animation-delay:.35s}
+.hero-badges{animation-delay:.45s}
+.hero-cta{animation-delay:.55s}
 </style>
 </head>
 <body>
+
+<div id="progress-bar"></div>
 
 <nav>
   <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
@@ -94,30 +188,72 @@
     <a href="no-supervisado.html">No Supervisado</a>
     <a href="redes-neuronales.html">Redes Neuronales</a>
     <a href="keras.html">Keras</a>
+    <div class="nav-author">por <span>Sergio Dussán</span></div>
   </div>
 </nav>
 
 <div class="hero">
-  <h1>Masterclass de Machine Learning</h1>
-  <p>Guías interactivas paso a paso para aprender ML desde los fundamentos hasta deep learning con Keras.</p>
-  <div class="hero-badges">
-    <span class="hero-badge">🐍 Python</span>
-    <span class="hero-badge">🔬 scikit-learn</span>
-    <span class="hero-badge">🧠 TensorFlow / Keras</span>
-    <span class="hero-badge">📊 matplotlib</span>
-    <span class="hero-badge">⚡ Interactivo</span>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-author">✦ Creado por Sergio Dussán</div>
+    <h1>Masterclass de<br><span>Machine Learning</span></h1>
+    <p>Guías interactivas paso a paso para aprender ML desde los fundamentos hasta deep learning. Conceptos, código real y gráficas en cada lección.</p>
+    <div class="hero-badges">
+      <span class="hero-badge">🐍 Python</span>
+      <span class="hero-badge">🔬 scikit-learn</span>
+      <span class="hero-badge">🧠 TensorFlow / Keras</span>
+      <span class="hero-badge">📊 Visualizaciones</span>
+      <span class="hero-badge">⚡ Interactivo</span>
+    </div>
+    <a class="hero-cta" href="#masterclasses">Explorar masterclasses →</a>
   </div>
 </div>
 
 <div class="stats">
-  <div class="stat"><div class="stat-val">5</div><div class="stat-label">Masterclasses</div></div>
-  <div class="stat"><div class="stat-val">40+</div><div class="stat-label">Conceptos cubiertos</div></div>
-  <div class="stat"><div class="stat-val">100+</div><div class="stat-label">Ejemplos de código</div></div>
-  <div class="stat"><div class="stat-val">50+</div><div class="stat-label">Gráficas interactivas</div></div>
+  <div class="stat"><div class="stat-val" data-target="5">0</div><div class="stat-label">Masterclasses</div></div>
+  <div class="stat"><div class="stat-val" data-target="40">0</div><div class="stat-label">Conceptos cubiertos</div></div>
+  <div class="stat"><div class="stat-val" data-target="100">0</div><div class="stat-label">Ejemplos de código</div></div>
+  <div class="stat"><div class="stat-val" data-target="50">0</div><div class="stat-label">Gráficas interactivas</div></div>
 </div>
 
-<div class="section">
+<div class="section" id="masterclasses">
 
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="searchInput"
+           placeholder="Buscar: Ridge, DBSCAN, Backprop, Dropout, LSTM…"
+           oninput="doSearch(this.value)" onblur="hideSearch()" onfocus="doSearch(this.value)">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <!-- AUTHOR -->
+  <div class="author-section" style="margin-top:2.5rem">
+    <div class="author-avatar">SD</div>
+    <div class="author-info">
+      <h3>Sergio Dussán</h3>
+      <p>Educador y practicante de Machine Learning. Esta serie de masterclasses está diseñada para llevar a los estudiantes desde los fundamentos estadísticos hasta la implementación de modelos en producción, con ejemplos prácticos y código ejecutable en cada lección.</p>
+      <div class="author-tags">
+        <span class="author-tag">Machine Learning</span>
+        <span class="author-tag">Deep Learning</span>
+        <span class="author-tag">Python</span>
+        <span class="author-tag">scikit-learn</span>
+        <span class="author-tag">TensorFlow / Keras</span>
+        <span class="author-tag">Educación en datos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ TEASER -->
+  <div class="quiz-teaser">
+    <div>
+      <h3>🧪 ¿Cuánto sabes de ML?</h3>
+      <p>Pon a prueba tus conocimientos con el quiz interactivo al final de cada masterclass.</p>
+    </div>
+    <a class="quiz-btn" href="regresion.html">Empezar con Regresión →</a>
+  </div>
+
+  <!-- GUIDE -->
   <div class="guide">
     <h2>📋 ¿Cómo usar estas masterclasses?</h2>
     <div class="steps">
@@ -132,47 +268,44 @@
         <div class="gstep-num">2</div>
         <div class="gstep-txt">
           <strong>Lee el código</strong>
-          <span>Cada sección incluye ejemplos reales de Python listos para ejecutar.</span>
+          <span>Cada sección incluye ejemplos reales de Python.</span>
         </div>
       </div>
       <div class="gstep">
         <div class="gstep-num">3</div>
         <div class="gstep-txt">
           <strong>Descarga el notebook</strong>
-          <span>Abre el .ipynb en Jupyter o Google Colab y ejecuta cada celda.</span>
+          <span>Abre el .ipynb en Jupyter o Google Colab.</span>
         </div>
       </div>
       <div class="gstep">
         <div class="gstep-num">4</div>
         <div class="gstep-txt">
-          <strong>Experimenta</strong>
-          <span>Modifica los hiperparámetros y observa los cambios en tiempo real.</span>
+          <strong>Responde el quiz</strong>
+          <span>Evalúa tu comprensión con preguntas al final de cada tema.</span>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="section-title">📚 Masterclasses disponibles</div>
+  <div class="section-title" id="cursos">📚 Masterclasses disponibles</div>
   <div class="section-sub">Selecciona un tema para comenzar</div>
 
-  <div class="cards">
+  <div class="cards" id="cardGrid">
 
     <a class="card" href="regresion.html">
       <div class="card-bar" style="background:linear-gradient(90deg,#378ADD,#534AB7)"></div>
       <div class="card-body">
-        <div class="card-icon">📐</div>
+        <span class="card-icon">📐</span>
         <div class="card-title">Regresión en ML</div>
-        <div class="card-desc">Lineal, Ridge, Lasso, ElasticNet, SVR, Random Forest y Gradient Boosting. Preprocesamiento, hiperparámetros, validación cruzada y métricas.</div>
+        <div class="card-desc">Lineal, Ridge, Lasso, ElasticNet, SVR y ensambles. Preprocesamiento completo, validación cruzada, hiperparámetros y métricas RMSE, R², MAE.</div>
         <div class="card-tags">
-          <span class="card-tag">OLS</span>
-          <span class="card-tag">Ridge / Lasso</span>
-          <span class="card-tag">Regularización</span>
-          <span class="card-tag">Cross-Validation</span>
-          <span class="card-tag">RMSE / R²</span>
+          <span class="card-tag">OLS</span><span class="card-tag">Ridge/Lasso</span>
+          <span class="card-tag">Cross-Validation</span><span class="card-tag">RMSE / R²</span>
         </div>
       </div>
       <div class="card-foot">
-        <span>7 secciones · Notebook incluido</span>
+        <span>7 secciones · Quiz incluido</span>
         <span class="card-cta">Explorar →</span>
       </div>
     </a>
@@ -180,19 +313,16 @@
     <a class="card" href="clasificacion.html">
       <div class="card-bar" style="background:linear-gradient(90deg,#0F6E56,#639922)"></div>
       <div class="card-body">
-        <div class="card-icon">🎯</div>
+        <span class="card-icon">🎯</span>
         <div class="card-title">Clasificación en ML</div>
-        <div class="card-desc">Regresión Logística, SVM, KNN, Árboles, Naive Bayes, Random Forest y XGBoost. Desbalance de clases, curvas ROC, matrices de confusión.</div>
+        <div class="card-desc">Regresión Logística, SVM, KNN, Árboles, Naive Bayes, Random Forest y XGBoost. Desbalance de clases, curvas ROC y matrices de confusión.</div>
         <div class="card-tags">
-          <span class="card-tag">Logistic Reg.</span>
-          <span class="card-tag">SVM</span>
-          <span class="card-tag">SMOTE</span>
-          <span class="card-tag">ROC-AUC</span>
-          <span class="card-tag">F1-Score</span>
+          <span class="card-tag">SVM</span><span class="card-tag">SMOTE</span>
+          <span class="card-tag">ROC-AUC</span><span class="card-tag">F1-Score</span>
         </div>
       </div>
       <div class="card-foot">
-        <span>7 secciones · Notebook incluido</span>
+        <span>7 secciones · Quiz incluido</span>
         <span class="card-cta">Explorar →</span>
       </div>
     </a>
@@ -200,19 +330,16 @@
     <a class="card" href="no-supervisado.html">
       <div class="card-bar" style="background:linear-gradient(90deg,#BA7517,#D4537E)"></div>
       <div class="card-body">
-        <div class="card-icon">🔵</div>
+        <span class="card-icon">🔵</span>
         <div class="card-title">Aprendizaje No Supervisado</div>
-        <div class="card-desc">PCA, t-SNE, UMAP, K-Means, DBSCAN, Clustering Jerárquico, GMM y detección de anomalías. Métricas Silhouette, ARI y Davies-Bouldin.</div>
+        <div class="card-desc">PCA, t-SNE, UMAP, K-Means, DBSCAN, GMM y detección de anomalías. Métricas Silhouette, ARI y Davies-Bouldin.</div>
         <div class="card-tags">
-          <span class="card-tag">PCA / t-SNE</span>
-          <span class="card-tag">UMAP</span>
-          <span class="card-tag">K-Means</span>
-          <span class="card-tag">DBSCAN</span>
-          <span class="card-tag">Silhouette</span>
+          <span class="card-tag">PCA/t-SNE</span><span class="card-tag">UMAP</span>
+          <span class="card-tag">K-Means</span><span class="card-tag">DBSCAN</span>
         </div>
       </div>
       <div class="card-foot">
-        <span>7 secciones · Notebook incluido</span>
+        <span>7 secciones · Quiz incluido</span>
         <span class="card-cta">Explorar →</span>
       </div>
     </a>
@@ -220,19 +347,16 @@
     <a class="card" href="redes-neuronales.html">
       <div class="card-bar" style="background:linear-gradient(90deg,#A32D2D,#D4537E)"></div>
       <div class="card-body">
-        <div class="card-icon">🧠</div>
+        <span class="card-icon">🧠</span>
         <div class="card-title">Redes Neuronales</div>
-        <div class="card-desc">Desde la neurona hasta CNN, LSTM y Autoencoders. Forward pass, backpropagation, funciones de activación, optimizadores y regularización.</div>
+        <div class="card-desc">Desde la neurona hasta CNN, LSTM y Autoencoders. Forward pass, backpropagation, optimizadores y regularización detallados paso a paso.</div>
         <div class="card-tags">
-          <span class="card-tag">MLP</span>
-          <span class="card-tag">CNN</span>
-          <span class="card-tag">LSTM / GRU</span>
-          <span class="card-tag">Backprop</span>
-          <span class="card-tag">Autoencoder</span>
+          <span class="card-tag">MLP</span><span class="card-tag">CNN</span>
+          <span class="card-tag">LSTM/GRU</span><span class="card-tag">Backprop</span>
         </div>
       </div>
       <div class="card-foot">
-        <span>9 secciones · Notebook incluido</span>
+        <span>9 secciones · Quiz incluido</span>
         <span class="card-cta">Explorar →</span>
       </div>
     </a>
@@ -240,19 +364,16 @@
     <a class="card" href="keras.html">
       <div class="card-bar" style="background:linear-gradient(90deg,#534AB7,#378ADD)"></div>
       <div class="card-body">
-        <div class="card-icon">⚡</div>
+        <span class="card-icon">⚡</span>
         <div class="card-title">Keras — Deep Learning API</div>
         <div class="card-desc">Sequential, Functional y Subclassing APIs. Capas, compilación, callbacks, custom layers/losses, transfer learning y despliegue en producción.</div>
         <div class="card-tags">
-          <span class="card-tag">Sequential</span>
-          <span class="card-tag">Functional</span>
-          <span class="card-tag">Callbacks</span>
-          <span class="card-tag">Transfer Learning</span>
-          <span class="card-tag">TFLite</span>
+          <span class="card-tag">Sequential</span><span class="card-tag">Functional</span>
+          <span class="card-tag">Callbacks</span><span class="card-tag">TFLite</span>
         </div>
       </div>
       <div class="card-foot">
-        <span>9 secciones · Notebook incluido</span>
+        <span>9 secciones · Quiz incluido</span>
         <span class="card-cta">Explorar →</span>
       </div>
     </a>
@@ -261,13 +382,154 @@
 </div>
 
 <footer>
-  <p>Masterclass ML · Construido con Python, scikit-learn y TensorFlow/Keras</p>
-  <p style="margin-top:.5rem">
+  <div class="footer-brand">🧠 Masterclass ML</div>
+  <p>Diseñado y desarrollado por <strong style="color:white">Sergio Dussán</strong></p>
+  <div class="footer-sub">
     <a href="https://scikit-learn.org" target="_blank">scikit-learn</a> ·
     <a href="https://keras.io" target="_blank">Keras</a> ·
     <a href="https://matplotlib.org" target="_blank">Matplotlib</a>
-  </p>
+  </div>
 </footer>
 
+<script>
+/* ── PROGRESS BAR ── */
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('progress-bar').style.width=pct+'%';
+});
+
+/* ── HERO CANVAS (partículas de red neuronal) ── */
+(function(){
+  const cv=document.getElementById('hero-canvas');
+  const ctx=cv.getContext('2d');
+  let W,H,nodes=[];
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight}
+  resize(); window.addEventListener('resize',resize);
+  function Node(){
+    this.x=Math.random()*W; this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*.4; this.vy=(Math.random()-.5)*.4;
+    this.r=Math.random()*2+1.5;
+  }
+  for(let i=0;i<55;i++) nodes.push(new Node());
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    nodes.forEach(n=>{
+      n.x+=n.vx; n.y+=n.vy;
+      if(n.x<0||n.x>W) n.vx*=-1;
+      if(n.y<0||n.y>H) n.vy*=-1;
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,.7)'; ctx.fill();
+    });
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<120){
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x,nodes[i].y);
+          ctx.lineTo(nodes[j].x,nodes[j].y);
+          ctx.strokeStyle=`rgba(255,255,255,${.5*(1-d/120)})`;
+          ctx.lineWidth=.8; ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ── COUNTER ANIMATION ── */
+function animateCounter(el, target, suffix=''){
+  let start=0, duration=1800;
+  let startTime=null;
+  function step(ts){
+    if(!startTime) startTime=ts;
+    const p=Math.min((ts-startTime)/duration,1);
+    const ease=1-Math.pow(1-p,4);
+    el.textContent=Math.round(ease*target)+(suffix||'');
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target, t=parseInt(el.dataset.target);
+      const suffix=el.dataset.target>='40'?'+':'';
+      animateCounter(el,t,suffix);
+      observer.unobserve(el);
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-target]').forEach(el=>observer.observe(el));
+
+/* ── CARD SCROLL ANIMATION ── */
+const cardObs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('visible'),i*100);
+      cardObs.unobserve(e.target);
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.card').forEach(c=>cardObs.observe(c));
+
+/* ── SEARCH ── */
+const searchData=[
+  {icon:'📐',title:'Ridge Regression',sub:'Regularización L2 para multicolinealidad',url:'regresion.html'},
+  {icon:'📐',title:'Lasso Regression',sub:'Regularización L1 — selección de features',url:'regresion.html'},
+  {icon:'📐',title:'ElasticNet',sub:'Combina L1 y L2 con l1_ratio',url:'regresion.html'},
+  {icon:'📐',title:'SVR — Support Vector Regression',sub:'Kernel RBF para relaciones no lineales',url:'regresion.html'},
+  {icon:'📐',title:'Validación cruzada — KFold',sub:'Estrategia anti data-leakage',url:'regresion.html'},
+  {icon:'📐',title:'RMSE y R²',sub:'Métricas estándar de regresión',url:'regresion.html'},
+  {icon:'🎯',title:'Regresión Logística',sub:'Clasificación binaria con función sigmoide',url:'clasificacion.html'},
+  {icon:'🎯',title:'SVM — Support Vector Machine',sub:'Margen máximo, kernel RBF',url:'clasificacion.html'},
+  {icon:'🎯',title:'Random Forest Clasificación',sub:'Ensemble de árboles con bagging',url:'clasificacion.html'},
+  {icon:'🎯',title:'SMOTE — Oversampling',sub:'Generar ejemplos sintéticos de clase minoritaria',url:'clasificacion.html'},
+  {icon:'🎯',title:'ROC-AUC y F1-Score',sub:'Métricas para clases desbalanceadas',url:'clasificacion.html'},
+  {icon:'🎯',title:'Matriz de confusión',sub:'TP, FP, FN, TN explicados',url:'clasificacion.html'},
+  {icon:'🔵',title:'PCA — Componentes Principales',sub:'Reducción lineal de dimensiones',url:'no-supervisado.html'},
+  {icon:'🔵',title:'t-SNE',sub:'Visualización 2D preservando vecinos locales',url:'no-supervisado.html'},
+  {icon:'🔵',title:'UMAP',sub:'Rápido, proyectable, preserva estructura global',url:'no-supervisado.html'},
+  {icon:'🔵',title:'K-Means Clustering',sub:'Elbow method y Silhouette Score',url:'no-supervisado.html'},
+  {icon:'🔵',title:'DBSCAN',sub:'Clustering basado en densidad, detecta outliers',url:'no-supervisado.html'},
+  {icon:'🔵',title:'Silhouette Score',sub:'Métrica interna de clustering sin etiquetas',url:'no-supervisado.html'},
+  {icon:'🧠',title:'Backpropagation',sub:'Regla de la cadena y gradientes',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'Dropout y BatchNorm',sub:'Regularización en redes neuronales',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'CNN — Redes Convolucionales',sub:'Filtros espaciales para imágenes',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'LSTM y GRU',sub:'Memoria a largo plazo en secuencias',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'Autoencoder y VAE',sub:'Compresión y detección de anomalías',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'ReLU, GELU, Sigmoid, Tanh',sub:'Funciones de activación comparadas',url:'redes-neuronales.html'},
+  {icon:'⚡',title:'Keras Sequential API',sub:'Arquitecturas lineales paso a paso',url:'keras.html'},
+  {icon:'⚡',title:'Keras Functional API',sub:'Multi-input, skip connections, ramas',url:'keras.html'},
+  {icon:'⚡',title:'Keras Callbacks',sub:'EarlyStopping, ReduceLR, Checkpoint',url:'keras.html'},
+  {icon:'⚡',title:'Transfer Learning con Keras',sub:'EfficientNet, ResNet — feature extraction y fine-tuning',url:'keras.html'},
+  {icon:'⚡',title:'Custom Layer y Loss en Keras',sub:'Focal Loss, F1 Score, capas propias',url:'keras.html'},
+  {icon:'⚡',title:'TFLite y despliegue',sub:'Exportar para móvil, edge y producción',url:'keras.html'},
+];
+
+function doSearch(q){
+  const res=document.getElementById('searchResults');
+  if(!q||q.length<2){res.style.display='none';return}
+  const hits=searchData.filter(d=>
+    d.title.toLowerCase().includes(q.toLowerCase())||
+    d.sub.toLowerCase().includes(q.toLowerCase())
+  ).slice(0,6);
+  if(!hits.length){res.style.display='none';return}
+  res.innerHTML=hits.map(h=>`
+    <div class="search-item" onclick="location.href='${h.url}'">
+      <span class="search-item-icon">${h.icon}</span>
+      <div><div class="search-item-title">${highlight(h.title,q)}</div>
+           <div class="search-item-sub">${h.sub}</div></div>
+    </div>`).join('');
+  res.style.display='block';
+}
+function highlight(text,q){
+  const re=new RegExp(`(${q})`, 'gi');
+  return text.replace(re,'<mark style="background:#dbeafe;color:#1e40af;border-radius:3px;padding:0 2px">$1</mark>');
+}
+function hideSearch(){setTimeout(()=>document.getElementById('searchResults').style.display='none',200)}
+</script>
 </body>
 </html>
