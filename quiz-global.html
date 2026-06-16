@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz de Autoevaluación — Sergio Dussán</title>
+<style>
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;
+      --muted:#6b7280;--accent:#378ADD;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+     background:var(--bg);color:var(--text)}
+#progress-bar{position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,#378ADD,#534AB7,#D4537E);
+  width:0%;z-index:999;transition:width .1s}
+nav{background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);padding:0 1.5rem;
+    display:flex;align-items:center;justify-content:space-between;
+    height:62px;position:sticky;top:3px;z-index:100;
+    box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.nav-brand{font-weight:800;font-size:16px;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:1rem;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--accent)}
+.nav-links a.hl{background:var(--accent);color:white;padding:5px 13px;border-radius:999px}
+.nav-author{font-size:12px;color:var(--muted);border-left:1px solid var(--border);
+            padding-left:1rem;margin-left:.5rem}
+.nav-author span{color:var(--accent);font-weight:600}
+
+.hero{background:linear-gradient(135deg,#064e3b,#0F6E56,#639922);
+      color:white;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:.6rem}
+.hero p{opacity:.85;font-size:15px;max-width:600px;margin:0 auto 1rem}
+.hero-stats{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-top:1.25rem}
+.hero-stat{text-align:center}
+.hero-stat-val{font-size:2rem;font-weight:800}
+.hero-stat-lbl{font-size:13px;opacity:.8}
+
+.container{max-width:900px;margin:0 auto;padding:2rem}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--accent);
+          text-decoration:none;font-size:14px;font-weight:500;margin-bottom:1.5rem;
+          padding:6px 14px;border:1px solid #BDD9F5;border-radius:8px;background:#EBF4FF}
+.back-btn:hover{background:var(--accent);color:white}
+
+/* TOPIC TABS */
+.topic-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem}
+.topic-tab{padding:8px 16px;font-size:13px;border:1.5px solid var(--border);
+           border-radius:999px;background:var(--surface);color:var(--muted);
+           cursor:pointer;font-family:inherit;font-weight:500;transition:all .2s}
+.topic-tab.active{background:var(--accent);color:white;border-color:var(--accent)}
+.topic-tab:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+
+/* GLOBAL SCORE BAR */
+.global-score{background:var(--surface);border:1px solid var(--border);
+              border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.5rem;
+              display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap}
+.gs-label{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap}
+.gs-bar-wrap{flex:1;min-width:150px}
+.gs-bar{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.gs-fill{height:100%;background:linear-gradient(90deg,#378ADD,#0F6E56);
+         border-radius:999px;transition:width .5s ease;width:0%}
+.gs-text{font-size:13px;color:var(--muted);margin-top:4px}
+.gs-reset{background:#f1f5f9;border:1px solid var(--border);border-radius:8px;
+          padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit;
+          color:var(--muted);transition:all .2s}
+.gs-reset:hover{background:var(--accent);color:white;border-color:var(--accent)}
+
+/* QUIZ QUESTIONS */
+.quiz-section{display:none}.quiz-section.on{display:block}
+.quiz-header{margin-bottom:1.25rem}
+.quiz-header h2{font-size:1.15rem;font-weight:700;margin-bottom:.25rem}
+.quiz-header p{font-size:14px;color:var(--muted)}
+
+.q-card{background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;
+        transition:border-color .2s}
+.q-card.answered-correct{border-color:#86efac}
+.q-card.answered-wrong{border-color:#fca5a5}
+.q-num{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:.5rem}
+.q-text{font-size:14px;font-weight:600;color:var(--text);margin-bottom:.85rem;line-height:1.6}
+.q-opts{display:flex;flex-direction:column;gap:6px}
+.q-opt{text-align:left;padding:10px 14px;border:1.5px solid #e5e7eb;
+       border-radius:8px;background:#f9fafb;font-size:13px;cursor:pointer;
+       transition:all .15s;font-family:inherit;color:#374151;line-height:1.5}
+.q-opt:hover:not(:disabled){border-color:var(--accent);background:#EBF4FF;color:var(--accent)}
+.q-opt.correct{background:#f0fdf4;border-color:#86efac;color:#14532d;font-weight:600}
+.q-opt.wrong{background:#fef2f2;border-color:#fca5a5;color:#7f1d1d}
+.q-opt:disabled{cursor:default}
+.opt-letter{font-weight:700;color:var(--accent);margin-right:6px}
+.q-exp{display:none;margin-top:.85rem;padding:.85rem 1rem;border-radius:8px;
+       font-size:13px;line-height:1.65;border-left:3px solid}
+.q-exp.correct{background:#f0fdf4;border-color:#22c55e;color:#14532d}
+.q-exp.wrong{background:#fef2f2;border-color:#ef4444;color:#7f1d1d}
+
+/* RESULT CARD */
+.result-card{border-radius:16px;padding:2rem;text-align:center;
+             color:white;margin-top:1rem;display:none}
+.result-emoji{font-size:3.5rem;margin-bottom:.5rem}
+.result-score{font-size:3rem;font-weight:900;margin-bottom:.25rem}
+.result-msg{font-size:1rem;opacity:.9;margin-bottom:1.25rem}
+.result-retry{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);
+              color:white;padding:9px 22px;border-radius:999px;cursor:pointer;
+              font-size:14px;font-weight:600;font-family:inherit;transition:background .2s}
+.result-retry:hover{background:rgba(255,255,255,.35)}
+
+footer{background:#0f172a;color:#94a3b8;text-align:center;padding:2rem;font-size:13px;margin-top:3rem}
+footer a{color:#7dd3fc;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav>
+  <a class="nav-brand" href="index.html">🧠 Masterclass ML</a>
+  <div class="nav-links">
+    <a href="regresion.html">Regresión</a>
+    <a href="clasificacion.html">Clasificación</a>
+    <a href="simulador.html" class="hl">🎛 Simulador</a>
+    <a href="quiz-global.html" class="active">🧪 Quiz</a>
+    <div class="nav-author">por <span>Sergio Dussán</span></div>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>🧪 Quiz de Autoevaluación</h1>
+  <p>Pon a prueba tus conocimientos. Cada respuesta incluye explicación detallada.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-val">6</div><div class="hero-stat-lbl">Temas</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">36</div><div class="hero-stat-lbl">Preguntas</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">100%</div><div class="hero-stat-lbl">Retroalimentación</div></div>
+  </div>
+</div>
+
+<div class="container">
+  <a class="back-btn" href="index.html">← Volver al inicio</a>
+
+  <!-- BARRA DE PROGRESO GLOBAL -->
+  <div class="global-score">
+    <span class="gs-label">📊 Progreso global</span>
+    <div class="gs-bar-wrap">
+      <div class="gs-bar"><div class="gs-fill" id="global-fill"></div></div>
+      <div class="gs-text" id="global-text">0 / 36 respondidas · 0 correctas</div>
+    </div>
+    <button class="gs-reset" onclick="resetAll()">↺ Reiniciar todo</button>
+  </div>
+
+  <!-- TABS DE TEMAS -->
+  <div class="topic-tabs">
+    <button class="topic-tab active" onclick="showTopic('regresion',this)">📐 Regresión</button>
+    <button class="topic-tab" onclick="showTopic('clasificacion',this)">🎯 Clasificación</button>
+    <button class="topic-tab" onclick="showTopic('nosupervisado',this)">🔵 No Supervisado</button>
+    <button class="topic-tab" onclick="showTopic('redes',this)">🧠 Redes Neuronales</button>
+    <button class="topic-tab" onclick="showTopic('keras',this)">⚡ Keras</button>
+    <button class="topic-tab" onclick="showTopic('hiperparametros',this)">🎛 Hiperparámetros</button>
+  </div>
+
+  <!-- ═══ REGRESIÓN ═══ -->
+  <div id="topic-regresion" class="quiz-section on">
+    <div class="quiz-header">
+      <h2>📐 Regresión en ML</h2>
+      <p>6 preguntas sobre modelos de regresión, regularización y métricas</p>
+    </div>
+    <div id="qs-regresion"></div>
+    <div class="result-card" id="result-regresion"></div>
+  </div>
+
+  <!-- ═══ CLASIFICACIÓN ═══ -->
+  <div id="topic-clasificacion" class="quiz-section">
+    <div class="quiz-header">
+      <h2>🎯 Clasificación en ML</h2>
+      <p>6 preguntas sobre clasificadores, desbalance de clases y métricas</p>
+    </div>
+    <div id="qs-clasificacion"></div>
+    <div class="result-card" id="result-clasificacion"></div>
+  </div>
+
+  <!-- ═══ NO SUPERVISADO ═══ -->
+  <div id="topic-nosupervisado" class="quiz-section">
+    <div class="quiz-header">
+      <h2>🔵 Aprendizaje No Supervisado</h2>
+      <p>6 preguntas sobre reducción dimensional y clustering</p>
+    </div>
+    <div id="qs-nosupervisado"></div>
+    <div class="result-card" id="result-nosupervisado"></div>
+  </div>
+
+  <!-- ═══ REDES NEURONALES ═══ -->
+  <div id="topic-redes" class="quiz-section">
+    <div class="quiz-header">
+      <h2>🧠 Redes Neuronales</h2>
+      <p>6 preguntas sobre arquitecturas, backprop y regularización</p>
+    </div>
+    <div id="qs-redes"></div>
+    <div class="result-card" id="result-redes"></div>
+  </div>
+
+  <!-- ═══ KERAS ═══ -->
+  <div id="topic-keras" class="quiz-section">
+    <div class="quiz-header">
+      <h2>⚡ Keras — Deep Learning API</h2>
+      <p>6 preguntas sobre APIs, compilación, callbacks y transfer learning</p>
+    </div>
+    <div id="qs-keras"></div>
+    <div class="result-card" id="result-keras"></div>
+  </div>
+
+  <!-- ═══ HIPERPARÁMETROS ═══ -->
+  <div id="topic-hiperparametros" class="quiz-section">
+    <div class="quiz-header">
+      <h2>🎛 Hiperparámetros y Optimización</h2>
+      <p>6 preguntas sobre selección de hiperparámetros y estrategias de búsqueda</p>
+    </div>
+    <div id="qs-hiperparametros"></div>
+    <div class="result-card" id="result-hiperparametros"></div>
+  </div>
+
+</div>
+
+<footer>
+  <p style="font-weight:700;color:white;margin-bottom:.4rem">🧪 Quiz de Autoevaluación</p>
+  <p>Diseñado por <strong style="color:white">Sergio Dussán</strong> ·
+     <a href="index.html">← Volver al inicio</a></p>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════
+   BANCO DE PREGUNTAS
+══════════════════════════════════════════ */
+const QUIZZES = {
+  regresion: [
+    { q:"¿Qué penalización usa Ridge Regression?",
+      opts:["L1 — valor absoluto de los coeficientes","L2 — cuadrado de los coeficientes","Sin penalización","Penalización por número de features"],
+      ans:1, exp:"Ridge usa L2: α·Σβⱼ². Encoge coeficientes pero ninguno llega exactamente a cero." },
+    { q:"¿Cuál modelo lleva coeficientes exactamente a 0, haciendo selección automática de features?",
+      opts:["Ridge","ElasticNet","Lasso","Regresión Lineal (OLS)"],
+      ans:2, exp:"Lasso (L1) usa penalización por valor absoluto. La geometría de L1 fuerza soluciones en los vértices, donde muchos coeficientes son exactamente cero." },
+    { q:"¿Por qué es obligatorio escalar antes de entrenar Ridge o Lasso?",
+      opts:["Para acelerar el entrenamiento","La penalización trata todos los coeficientes igual sin importar la escala original","Para reducir el número de features","Para evitar overfitting en el test set"],
+      ans:1, exp:"Sin escalar, features con magnitudes grandes reciben mayor penalización que features pequeñas con igual importancia. StandardScaler iguala las escalas." },
+    { q:"¿Qué métrica mide la proporción de varianza del target explicada por el modelo?",
+      opts:["MAE","RMSE","R² (coeficiente de determinación)","MAPE"],
+      ans:2, exp:"R² = 1 − SSres/SStot. Valor 1 = predicción perfecta. Valor 0 = el modelo no explica nada. Puede ser negativo si el modelo es peor que predecir la media." },
+    { q:"En K-Fold Cross-Validation con K=5, ¿cuál es el score final reportado?",
+      opts:["El mejor de los 5 folds","El del último fold","El promedio de los 5 scores de validación","El score en el conjunto de test"],
+      ans:2, exp:"El score final es el promedio (y desviación estándar) de los K scores de validación. Reduce la varianza de la estimación comparado con una sola partición." },
+    { q:"¿Cuándo conviene usar ElasticNet en lugar de Lasso puro?",
+      opts:["Cuando hay pocos features","Cuando hay grupos de features correladas entre sí","Cuando el dataset es muy pequeño","Cuando no hay outliers"],
+      ans:1, exp:"Lasso elige arbitrariamente uno de features correlados. ElasticNet (L1+L2) distribuye los coeficientes entre todos los features del grupo gracias al componente Ridge." }
+  ],
+
+  clasificacion: [
+    { q:"¿Por qué el accuracy es engañoso con clases desbalanceadas?",
+      opts:["Es difícil de calcular","Un modelo que predice siempre la clase mayoritaria tiene accuracy alto pero recall=0 en la clase minoritaria","Solo funciona con dos clases","No considera los verdaderos positivos"],
+      ans:1, exp:"Con 95% clase 0 y 5% clase 1, predecir siempre 0 da 95% accuracy. Pero el modelo nunca detecta la clase de interés. Usa F1 o ROC-AUC en estos casos." },
+    { q:"¿Qué mide el Recall (Sensibilidad)?",
+      opts:["De lo predicho positivo, ¿cuánto era realmente positivo?","De todos los positivos reales, ¿cuántos encontró el modelo?","La proporción de verdaderos negativos","El área bajo la curva ROC"],
+      ans:1, exp:"Recall = TP/(TP+FN). Mide la capacidad de encontrar todos los positivos. Crítico en diagnóstico médico donde un falso negativo puede ser muy costoso." },
+    { q:"¿Qué técnica genera ejemplos sintéticos de la clase minoritaria interpolando entre vecinos?",
+      opts:["Undersampling aleatorio","Tomek Links","SMOTE","class_weight='balanced'"],
+      ans:2, exp:"SMOTE: x_new = xᵢ + λ·(xₙ − xᵢ) donde λ ~ U(0,1). Crea puntos sintéticos entre vecinos reales, no duplica ejemplos existentes." },
+    { q:"¿Por qué StratifiedKFold es preferible a KFold en clasificación?",
+      opts:["Es más rápido","Preserva la proporción de clases en cada fold","Genera más folds","No requiere escalado"],
+      ans:1, exp:"StratifiedKFold garantiza que cada fold tenga la misma proporción de clases que el dataset completo. Con desbalance, un fold podría no tener ningún ejemplo minoritario." },
+    { q:"¿Qué representa el área bajo la curva ROC (ROC-AUC)?",
+      opts:["Precisión global del modelo","P(score(positivo) > score(negativo)) — probabilidad de ranking correcto","El F1-Score promedio","La precisión máxima alcanzable"],
+      ans:1, exp:"ROC-AUC = probabilidad de que el modelo asigne mayor score a un positivo aleatorio que a un negativo. AUC=0.5 es aleatorio; AUC=1 es perfecto." },
+    { q:"¿Cuándo es más informativa PR-AUC que ROC-AUC?",
+      opts:["Clases balanceadas","Dataset muy grande","Clase positiva muy rara (fraude, enfermedad rara)","Cuando se usa SVM"],
+      ans:2, exp:"Con clases muy desbalanceadas, ROC-AUC puede ser optimistamente alto por los muchos TN. PR-AUC se enfoca en la clase positiva y es más discriminativa en estos casos." }
+  ],
+
+  nosupervisado: [
+    { q:"¿Por qué es crítico escalar antes de K-Means o PCA?",
+      opts:["Para acelerar el algoritmo","Las distancias euclídeas son sensibles a la escala — un feature en miles domina sobre uno en decimales","Para reducir clusters","Para mejorar la visualización"],
+      ans:1, exp:"K-Means minimiza distancias euclídeas. Sin escalado, 'salario' (miles) domina sobre 'edad' (decenas), haciendo que los clusters dependan casi solo de esa variable." },
+    { q:"¿Qué ventaja principal tiene DBSCAN sobre K-Means?",
+      opts:["Es más rápido con N grande","No requiere especificar K y detecta clusters de forma arbitraria y puntos de ruido","Funciona mejor en datos esféricos","No necesita escalado"],
+      ans:1, exp:"DBSCAN descubre K automáticamente, detecta clusters de cualquier forma y etiqueta como ruido (-1) los puntos en zonas de baja densidad." },
+    { q:"¿Qué rango tiene el Silhouette Score y qué significa el valor 1?",
+      opts:["[0,1] — sin errores","[−1, 1] — clusters perfectamente separados y cohesivos","[0, ∞) — menor es mejor","[0,100%] — muestras bien asignadas"],
+      ans:1, exp:"Silhouette ∈ [−1,1]. Valor 1: punto muy dentro de su cluster y lejos de los demás. Valor 0: en el borde. Negativo: probablemente mal asignado." },
+    { q:"¿Para qué sirve principalmente t-SNE?",
+      opts:["Preprocessing antes de clasificación","Visualización en 2D/3D — NO para preprocessing de modelos downstream","Reducir número de clusters","Acelerar K-Means"],
+      ans:1, exp:"t-SNE no es proyectable a nuevos datos y sus distancias absolutas no son interpretables. Solo sirve para exploración visual. Para preprocessing usa PCA o UMAP." },
+    { q:"En el Elbow Method, ¿qué se grafica y qué se busca?",
+      opts:["Silhouette vs iteraciones — buscar el máximo","Inercia (WCSS) vs K — buscar el punto donde la disminución se estabiliza","Error de reconstrucción vs K — buscar el mínimo","ARI vs K — buscar el máximo"],
+      ans:1, exp:"Se grafica WCSS vs K. El 'codo' es donde añadir más clusters apenas reduce la inercia. Combinar con Silhouette Score para confirmar el K óptimo." },
+    { q:"¿Qué mide el Adjusted Rand Index (ARI)?",
+      opts:["Inercia normalizada — [0,∞)","Similitud entre clustering y etiquetas reales, corregida por azar — [−1, 1]","Número óptimo de clusters","Varianza explicada por los clusters"],
+      ans:1, exp:"ARI ∈ [−1,1]. Valor 1 = clustering idéntico a las etiquetas. Valor 0 = aleatorio. La corrección por azar evita que clusterings con muchos K parezcan buenos sin serlo." }
+  ],
+
+  redes: [
+    { q:"¿Por qué no se inicializan todos los pesos a cero?",
+      opts:["Cero no es válido en TensorFlow","Todas las neuronas calcularían los mismos gradientes y aprenderían lo mismo — problema de simetría","La red no converge con el optimizador","El forward pass daría error"],
+      ans:1, exp:"Con pesos iguales, todas las neuronas de una capa calculan la misma función y reciben los mismos gradientes. Nunca se diferenciarían. La aleatoriedad rompe la simetría." },
+    { q:"¿Qué problema resuelve ReLU frente a Sigmoid en capas profundas?",
+      opts:["Reduce el tiempo de entrenamiento","Evita el problema del gradiente que desaparece (vanishing gradient)","Genera probabilidades en [0,1]","Reduce el número de parámetros"],
+      ans:1, exp:"Sigmoid satura → derivada ≈ 0 → gradientes se multiplican por valores cercanos a 0 en capas profundas → desaparecen. ReLU tiene derivada constante (1 para x>0)." },
+    { q:"¿Qué hace Dropout durante el entrenamiento?",
+      opts:["Elimina permanentemente las neuronas menos útiles","Desactiva aleatoriamente una fracción de neuronas en cada forward pass","Reduce el learning rate automáticamente","Normaliza las activaciones por mini-batch"],
+      ans:1, exp:"Dropout apaga cada neurona con probabilidad p en cada paso. Fuerza redundancia en las representaciones y actúa como ensemble de 2ⁿ redes distintas." },
+    { q:"¿Qué arquitectura es más adecuada para clasificar imágenes?",
+      opts:["MLP — captura relaciones espaciales más eficientemente","CNN — filtros compartidos invariantes a la traslación","RNN — procesa píxeles secuencialmente","Autoencoder — comprime la imagen"],
+      ans:1, exp:"CNN aprende filtros espaciales que detectan patrones en cualquier posición. MLP trataría cada píxel independientemente sin explotar la estructura espacial." },
+    { q:"¿Cuál es la diferencia principal entre LSTM y RNN simple?",
+      opts:["LSTM es más rápido de entrenar","LSTM tiene puertas (forget, input, output) que retienen información por muchos pasos temporales","LSTM no usa backpropagation","LSTM solo funciona con texto"],
+      ans:1, exp:"RNN sufre vanishing gradient en secuencias largas. LSTM tiene celda de estado Cₜ y tres puertas que controlan qué recordar, olvidar y transmitir." },
+    { q:"¿Qué indica un train loss muy bajo pero val loss alto y creciente?",
+      opts:["Underfitting — necesita más capacidad","Overfitting — memoriza el training set sin generalizar","Learning rate demasiado bajo","Batch size incorrecto"],
+      ans:1, exp:"Esta brecha creciente es la señal clásica de overfitting. Soluciones: Dropout, L2, EarlyStopping, Data Augmentation o más datos de entrenamiento." }
+  ],
+
+  keras: [
+    { q:"¿Cuándo usar la Functional API en lugar de Sequential?",
+      opts:["Cuando el modelo tiene muchas capas","Cuando necesitas múltiples entradas/salidas, skip connections o ramas paralelas","Cuando el dataset es muy grande","Cuando usas GPU"],
+      ans:1, exp:"Sequential solo permite pilas lineales. Functional permite DAGs: múltiples inputs, múltiples outputs, conexiones residuales (ResNet), ramas paralelas (Inception)." },
+    { q:"¿Qué función de pérdida y activación usar para multiclase con etiquetas enteras?",
+      opts:["categorical_crossentropy + softmax","sparse_categorical_crossentropy + softmax","binary_crossentropy + sigmoid","mean_squared_error + linear"],
+      ans:1, exp:"sparse_categorical_crossentropy acepta enteros directamente (0,1,2…). categorical_crossentropy requiere one-hot. Ambas usan softmax en la salida." },
+    { q:"¿Qué hace EarlyStopping con restore_best_weights=True?",
+      opts:["Guarda el modelo cada época","Detiene y restaura los pesos de la mejor época según la métrica monitorizada","Reduce el learning rate cuando no mejora","Reinicia desde cero"],
+      ans:1, exp:"Sin esta opción, el modelo termina con los pesos de la última época (posiblemente peor). Con ella, restaura automáticamente los pesos del mejor momento." },
+    { q:"¿Diferencia entre feature extraction y fine-tuning en transfer learning?",
+      opts:["Son lo mismo","Feature extraction: base congelado, solo entrena clasificador. Fine-tuning: descongela capas superiores con LR muy bajo","Feature extraction es más preciso","Fine-tuning solo funciona con LLMs"],
+      ans:1, exp:"Feature extraction (base.trainable=False): extrae características fijas. Fine-tuning (capas superiores + LR 10-100× menor): adapta los pesos al nuevo dominio." },
+    { q:"¿Para qué sirve ReduceLROnPlateau?",
+      opts:["Aumentar el LR cuando el modelo converge rápido","Reducir el LR cuando la pérdida se estanca, permitiendo ajustes más finos","Cambiar el optimizador automáticamente","Añadir más capas si no converge"],
+      ans:1, exp:"Monitoriza una métrica y si no mejora en 'patience' épocas, multiplica el LR por 'factor' (típico 0.5). Permite empezar con LR alto y refinar al acercarse al óptimo." },
+    { q:"¿Qué formato es más adecuado para desplegar en dispositivos móviles?",
+      opts:[".keras — el formato nativo","SavedModel — para TF Serving","TFLite con cuantización INT8 — optimizado para móvil y edge","ONNX — para interoperabilidad"],
+      ans:2, exp:"TFLite convierte el modelo a un formato compacto. Con cuantización INT8 el modelo puede ser 4× más pequeño y 2-4× más rápido, con pérdida mínima de precisión." }
+  ],
+
+  hiperparametros: [
+    { q:"¿Qué estrategia de búsqueda es más eficiente cuando el espacio de hiperparámetros es muy grande?",
+      opts:["GridSearchCV — explora todas las combinaciones","RandomizedSearchCV — muestrea combinaciones aleatorias de distribuciones","Probar manualmente una por una","Usar los valores por defecto siempre"],
+      ans:1, exp:"RandomizedSearchCV evalúa n_iter combinaciones aleatorias de distribuciones (ej. loguniform). Es mucho más eficiente que Grid cuando hay muchos hiperparámetros." },
+    { q:"¿Qué indica la curva de validación cuando train accuracy es alto y val accuracy es bajo?",
+      opts:["Underfitting — modelo demasiado simple","Overfitting — modelo demasiado complejo para los datos disponibles","El hiperparámetro no tiene efecto","Los datos están mal escalados"],
+      ans:1, exp:"Brecha grande entre train y val = overfitting. El modelo ha memorizado los datos de entrenamiento. Reducir la complejidad del hiperparámetro (ej. max_depth, C, n_estimators) o añadir regularización." },
+    { q:"¿Qué es el learning rate y cuál es el efecto de usarlo demasiado alto?",
+      opts:["Número de épocas — demasiado alto produce underfitting","Tamaño del paso en el descenso por gradiente — demasiado alto produce divergencia u oscilaciones","Número de neuronas — demasiado alto produce overfitting","Factor de regularización — demasiado alto produce underfitting"],
+      ans:1, exp:"El LR controla cuánto se actualizan los pesos en cada paso. Demasiado alto: los pesos 'saltan' por encima del óptimo y el modelo diverge o oscila. Demasiado bajo: convergencia extremadamente lenta." },
+    { q:"¿Cuál es la función del parámetro 'patience' en EarlyStopping?",
+      opts:["Número mínimo de épocas antes de empezar a monitorizar","Número de épocas sin mejora que se toleran antes de detener el entrenamiento","Factor de reducción del learning rate","Número de veces que se puede reiniciar el entrenamiento"],
+      ans:1, exp:"patience=10 significa que si la métrica monitorizada no mejora en 10 épocas consecutivas, se detiene el entrenamiento. Evita parar demasiado pronto si hay fluctuaciones temporales." },
+    { q:"¿Por qué no se debe optimizar hiperparámetros usando el conjunto de test?",
+      opts:["Porque el test set es demasiado pequeño","Porque esto introduce data leakage — el modelo se adapta indirectamente al test y la evaluación final es optimista","Porque GridSearch no soporta test sets","Porque el test set no tiene etiquetas"],
+      ans:1, exp:"Usar el test para seleccionar hiperparámetros 'filtra' información del test al modelo. La evaluación final ya no refleja el rendimiento en datos realmente nuevos. Todo el tuning debe hacerse con CV en el train set." },
+    { q:"¿Qué es k-means++ y por qué es mejor que inicialización aleatoria en K-Means?",
+      opts:["Un algoritmo de clustering diferente a K-Means","Una estrategia de inicialización de centroides que los coloca bien separados, reduciendo la probabilidad de converger a mínimos locales malos","Una técnica para elegir automáticamente el K óptimo","Una versión de K-Means que no requiere escalar los datos"],
+      ans:1, exp:"k-means++ elige el primer centroide aleatoriamente, luego cada siguiente centroide se elige con probabilidad proporcional a la distancia al centroide más cercano. Esto garantiza mayor separación inicial y mejor convergencia." }
+  ]
+};
+
+/* ══════════════════════════════════════════
+   ESTADO GLOBAL
+══════════════════════════════════════════ */
+const STATE = {};
+Object.keys(QUIZZES).forEach(key => {
+  STATE[key] = { answered: 0, correct: 0, total: QUIZZES[key].length };
+});
+
+/* ══════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════ */
+function renderAll() {
+  Object.keys(QUIZZES).forEach(key => renderQuiz(key));
+}
+
+function renderQuiz(key) {
+  const container = document.getElementById('qs-' + key);
+  if (!container) return;
+  STATE[key] = { answered: 0, correct: 0, total: QUIZZES[key].length };
+
+  container.innerHTML = QUIZZES[key].map((q, i) => `
+    <div class="q-card" id="qcard-${key}-${i}">
+      <div class="q-num">Pregunta ${i + 1} de ${QUIZZES[key].length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-opts">
+        ${q.opts.map((opt, j) => `
+          <button class="q-opt" id="opt-${key}-${i}-${j}"
+            onclick="selectOpt('${key}',${i},${j})">
+            <span class="opt-letter">${String.fromCharCode(65+j)}.</span>${opt}
+          </button>`).join('')}
+      </div>
+      <div class="q-exp" id="exp-${key}-${i}"></div>
+    </div>`).join('');
+
+  const resultEl = document.getElementById('result-' + key);
+  if (resultEl) resultEl.style.display = 'none';
+}
+
+function selectOpt(key, qIdx, oIdx) {
+  const card = document.getElementById(`qcard-${key}-${qIdx}`);
+  if (card.dataset.answered) return;
+  card.dataset.answered = '1';
+
+  const q = QUIZZES[key][qIdx];
+  const correct = oIdx === q.ans;
+
+  /* Colorear opciones */
+  q.opts.forEach((_, j) => {
+    const btn = document.getElementById(`opt-${key}-${qIdx}-${j}`);
+    btn.disabled = true;
+    if (j === q.ans) btn.classList.add('correct');
+    else if (j === oIdx && !correct) btn.classList.add('wrong');
+  });
+
+  /* Explicación */
+  const expEl = document.getElementById(`exp-${key}-${qIdx}`);
+  expEl.style.display = 'block';
+  expEl.className = 'q-exp ' + (correct ? 'correct' : 'wrong');
+  expEl.innerHTML = (correct ? '<strong>✅ ¡Correcto!</strong> ' : '<strong>❌ Incorrecto.</strong> ') + q.exp;
+
+  /* Card border */
+  card.classList.add(correct ? 'answered-correct' : 'answered-wrong');
+
+  /* Actualizar estado */
+  STATE[key].answered++;
+  if (correct) STATE[key].correct++;
+  updateGlobalBar();
+
+  /* ¿Terminó el tema? */
+  if (STATE[key].answered === STATE[key].total) {
+    showResult(key);
+  }
+}
+
+function showResult(key) {
+  const { correct, total } = STATE[key];
+  const pct = Math.round(correct / total * 100);
+  const el = document.getElementById('result-' + key);
+  let emoji, msg, bg;
+  if (pct >= 85) { emoji='🏆'; msg='¡Excelente dominio del tema!'; bg='linear-gradient(135deg,#064e3b,#0F6E56)'; }
+  else if (pct >= 60) { emoji='👍'; msg='Buen trabajo. Repasa las respuestas incorrectas.'; bg='linear-gradient(135deg,#1e3a5f,#378ADD)'; }
+  else { emoji='📚'; msg='Te recomendamos revisar esta sección con más detalle.'; bg='linear-gradient(135deg,#450a0a,#A32D2D)'; }
+
+  el.style.cssText = `display:block;background:${bg}`;
+  el.innerHTML = `
+    <div class="result-emoji">${emoji}</div>
+    <div class="result-score">${correct} / ${total}</div>
+    <div class="result-msg">${pct}% correcto — ${msg}</div>
+    <button class="result-retry" onclick="retryTopic('${key}')">🔄 Repetir este tema</button>`;
+}
+
+function retryTopic(key) {
+  renderQuiz(key);
+  updateGlobalBar();
+}
+
+function resetAll() {
+  Object.keys(QUIZZES).forEach(key => renderQuiz(key));
+  updateGlobalBar();
+}
+
+function updateGlobalBar() {
+  let totalAnswered = 0, totalCorrect = 0, totalQ = 0;
+  Object.values(STATE).forEach(s => {
+    totalAnswered += s.answered;
+    totalCorrect  += s.correct;
+    totalQ        += s.total;
+  });
+  const pct = totalQ > 0 ? (totalAnswered / totalQ * 100) : 0;
+  document.getElementById('global-fill').style.width = pct + '%';
+  document.getElementById('global-text').textContent =
+    `${totalAnswered} / ${totalQ} respondidas · ${totalCorrect} correctas`;
+}
+
+/* ══════════════════════════════════════════
+   NAVEGACIÓN DE TEMAS
+══════════════════════════════════════════ */
+function showTopic(id, btn) {
+  document.querySelectorAll('.quiz-section').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.topic-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('topic-' + id).classList.add('on');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── PROGRESS BAR ── */
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  document.getElementById('progress-bar').style.width =
+    (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+});
+
+/* ── INIT ── */
+renderAll();
+</script>
+</body>
+</html
