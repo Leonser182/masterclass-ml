@@ -5,80 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Masterclass ML — Sergio Dussán</title>
 <style>
-:root{
-  --bg:#f8f9fa;--surface:#ffffff;--border:#e5e7eb;
-  --text:#111827;--muted:#6b7280;--accent:#378ADD;
-  --accent2:#534AB7;--radius:12px;
-  --shadow:0 2px 16px rgba(0,0,0,.08);
-}
+:root{--bg:#f8f9fa;--surface:#fff;--border:#e5e7eb;--text:#111827;
+      --muted:#6b7280;--accent:#378ADD;--radius:12px;--shadow:0 2px 16px rgba(0,0,0,.08)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
      background:var(--bg);color:var(--text);overflow-x:hidden}
-
-/* ── PROGRESS BAR ── */
 #progress-bar{position:fixed;top:0;left:0;height:3px;
-  background:linear-gradient(90deg,#378ADD,#534AB7,#D4537E);
-  width:0%;z-index:999;transition:width .1s}
+  background:linear-gradient(90deg,#378ADD,#534AB7,#D4537E);width:0%;z-index:999}
 
-/* ── NAV ── */
-nav{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
+/* NAV */
+nav{background:rgba(255,255,255,.96);backdrop-filter:blur(10px);
     border-bottom:1px solid var(--border);padding:0 1.5rem;
     display:flex;align-items:center;justify-content:space-between;
     height:62px;position:sticky;top:3px;z-index:100;
     box-shadow:0 1px 8px rgba(0,0,0,.06)}
-.nav-brand{font-weight:800;font-size:17px;color:var(--accent);
-           text-decoration:none;display:flex;align-items:center;gap:8px}
-.nav-links{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;
-             transition:color .2s;font-weight:500;padding:4px 0}
+.nav-brand{font-weight:800;font-size:17px;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.9rem;align-items:center;flex-wrap:wrap}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s}
 .nav-links a:hover{color:var(--accent)}
-.nav-links a.highlight{background:var(--accent);color:white;
-                       padding:5px 13px;border-radius:999px;font-weight:600}
-.nav-links a.highlight:hover{background:#2570c0;color:white}
+.nav-links a.hl{background:var(--accent);color:white;padding:5px 13px;
+                border-radius:999px;font-weight:600}
+.nav-links a.hl:hover{background:#2570c0}
 .nav-author{font-size:12px;color:var(--muted);border-left:1px solid var(--border);
-            padding-left:1rem;margin-left:.5rem;white-space:nowrap}
+            padding-left:1rem;margin-left:.4rem;white-space:nowrap}
 .nav-author span{color:var(--accent);font-weight:600}
 
-/* ── HERO ── */
+/* HERO */
 .hero{position:relative;overflow:hidden;
       background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 40%,#378ADD 75%,#534AB7 100%);
       color:white;padding:6rem 2rem 5rem;text-align:center}
-#hero-canvas{position:absolute;top:0;left:0;width:100%;height:100%;
-             opacity:.35;pointer-events:none}
+#hero-canvas{position:absolute;top:0;left:0;width:100%;height:100%;opacity:.35;pointer-events:none}
 .hero-content{position:relative;z-index:2}
 .hero-author{display:inline-block;background:rgba(255,255,255,.12);
              border:1px solid rgba(255,255,255,.25);padding:4px 16px;
              border-radius:999px;font-size:12px;margin-bottom:1.25rem}
-.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;margin-bottom:1rem;
-         letter-spacing:-.02em;line-height:1.1}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:900;margin-bottom:1rem;line-height:1.1}
 .hero h1 span{background:linear-gradient(90deg,#7dd3fc,#c4b5fd);
               -webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero p{font-size:1.05rem;opacity:.85;max-width:600px;margin:0 auto 2rem;line-height:1.7}
 .hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
 .hero-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
             padding:5px 14px;border-radius:999px;font-size:12.5px}
-.hero-cta{display:inline-flex;align-items:center;gap:8px;
-          background:white;color:#1e3a5f;padding:12px 28px;
-          border-radius:999px;font-weight:700;font-size:15px;
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:white;color:#1e3a5f;
+          padding:12px 28px;border-radius:999px;font-weight:700;font-size:15px;
           text-decoration:none;transition:transform .2s,box-shadow .2s;
           box-shadow:0 4px 20px rgba(0,0,0,.2)}
 .hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
 
-/* ── STATS ── */
+/* STATS */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
        gap:1px;background:var(--border)}
 .stat{background:var(--surface);padding:1.75rem 1rem;text-align:center}
 .stat-val{font-size:2.2rem;font-weight:800;color:var(--accent)}
 .stat-label{font-size:13px;color:var(--muted);margin-top:4px}
 
-/* ── SEARCH ── */
+/* SEARCH */
 .search-wrap{max-width:600px;margin:2.5rem auto 0;position:relative}
-.search-input{width:100%;padding:12px 20px 12px 46px;
-              border:1.5px solid var(--border);border-radius:999px;
-              font-size:14px;background:var(--surface);color:var(--text);
-              outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit}
-.search-input:focus{border-color:var(--accent);
-                    box-shadow:0 0 0 3px rgba(55,138,221,.15)}
+.search-input{width:100%;padding:12px 20px 12px 46px;border:1.5px solid var(--border);
+              border-radius:999px;font-size:14px;background:var(--surface);
+              color:var(--text);outline:none;font-family:inherit;
+              transition:border-color .2s,box-shadow .2s}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(55,138,221,.15)}
 .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);
              color:var(--muted);font-size:16px;pointer-events:none}
 .search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;
@@ -86,47 +73,27 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
                 border-radius:var(--radius);box-shadow:var(--shadow);
                 display:none;z-index:200;overflow:hidden}
 .search-item{padding:10px 16px;font-size:13px;cursor:pointer;
-             border-bottom:1px solid var(--border);
-             display:flex;align-items:center;gap:10px}
+             border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .search-item:last-child{border-bottom:none}
 .search-item:hover{background:#f5f7ff}
-.search-item-icon{font-size:16px}
 .search-item-title{font-weight:600;color:var(--text)}
 .search-item-sub{color:var(--muted);font-size:12px}
 
-/* ── SECTION ── */
+/* SECTION */
 .section{padding:3rem 2rem;max-width:1100px;margin:0 auto}
 .section-title{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}
 .section-sub{color:var(--muted);font-size:15px;margin-bottom:2rem}
 
-/* ── TOOLS BANNER ── */
-.tools-banner{background:linear-gradient(135deg,#1e3a5f,#534AB7);
-              border-radius:16px;padding:1.75rem 2rem;
-              display:flex;align-items:center;justify-content:space-between;
-              gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;color:white}
-.tools-banner h3{font-size:1.1rem;font-weight:800;margin-bottom:.3rem}
-.tools-banner p{font-size:14px;opacity:.85}
-.tools-links{display:flex;gap:.75rem;flex-wrap:wrap}
-.tool-btn{padding:9px 20px;border-radius:999px;font-weight:700;
-          font-size:13px;text-decoration:none;transition:transform .2s;
-          white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-.tool-btn-white{background:white;color:#1e3a5f}
-.tool-btn-white:hover{transform:scale(1.05)}
-.tool-btn-outline{background:rgba(255,255,255,.15);color:white;
-                  border:1px solid rgba(255,255,255,.35)}
-.tool-btn-outline:hover{background:rgba(255,255,255,.25);transform:scale(1.05)}
-
-/* ── CARDS ── */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.25rem}
+/* CARDS - MASTERCLASSES */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.25rem;
+       margin-bottom:2.5rem}
 .card{background:var(--surface);border:1px solid var(--border);
-      border-radius:var(--radius);overflow:hidden;
-      text-decoration:none;color:inherit;display:flex;flex-direction:column;
-      opacity:0;transform:translateY(24px);
-      transition:box-shadow .25s;}
+      border-radius:var(--radius);overflow:hidden;text-decoration:none;
+      color:inherit;display:flex;flex-direction:column;
+      opacity:0;transform:translateY(24px);transition:box-shadow .25s}
 .card.visible{opacity:1;transform:translateY(0);
-              transition:opacity .5s ease,transform .5s ease,box-shadow .25s}
-.card:hover{transform:translateY(-5px)!important;
-            box-shadow:0 16px 40px rgba(0,0,0,.12)}
+              transition:opacity .5s,transform .5s,box-shadow .25s}
+.card:hover{transform:translateY(-5px)!important;box-shadow:0 16px 40px rgba(0,0,0,.12)}
 .card-bar{height:5px}
 .card-body{padding:1.5rem;flex:1}
 .card-icon{font-size:2.2rem;margin-bottom:.85rem;display:block}
@@ -140,24 +107,23 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
            font-size:13px;color:var(--muted);background:#fafafa}
 .card-cta{color:var(--accent);font-weight:700;font-size:13px}
 
-/* ── SPECIAL CARDS (Simulador + Quiz) ── */
-.special-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
-               gap:1.25rem;margin-bottom:2rem}
-.special-card{border-radius:var(--radius);overflow:hidden;text-decoration:none;
-              color:white;display:flex;flex-direction:column;
-              transition:transform .25s,box-shadow .25s}
-.special-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.25)}
-.special-card-body{padding:1.75rem;flex:1}
-.special-card-icon{font-size:2.5rem;margin-bottom:.85rem;display:block}
-.special-card-title{font-size:1.15rem;font-weight:800;margin-bottom:.4rem}
-.special-card-desc{font-size:14px;opacity:.88;line-height:1.65;margin-bottom:1rem}
-.special-card-tags{display:flex;flex-wrap:wrap;gap:6px}
-.special-card-tag{font-size:11px;padding:2px 9px;border-radius:999px;
-                  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3)}
-.special-card-foot{padding:.9rem 1.75rem;background:rgba(0,0,0,.2);
-                   font-size:13px;font-weight:700;opacity:.95}
+/* SPECIAL CARDS - Simulador & Quiz */
+.special-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.25rem}
+.scard{border-radius:var(--radius);overflow:hidden;text-decoration:none;
+       color:white;display:flex;flex-direction:column;
+       transition:transform .25s,box-shadow .25s}
+.scard:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.scard-body{padding:1.75rem;flex:1}
+.scard-icon{font-size:2.5rem;margin-bottom:.85rem;display:block}
+.scard-title{font-size:1.15rem;font-weight:800;margin-bottom:.4rem}
+.scard-desc{font-size:14px;opacity:.88;line-height:1.65;margin-bottom:1rem}
+.scard-tags{display:flex;flex-wrap:wrap;gap:6px}
+.scard-tag{font-size:11px;padding:2px 9px;border-radius:999px;
+           background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3)}
+.scard-foot{padding:.9rem 1.75rem;background:rgba(0,0,0,.2);
+            font-size:13px;font-weight:700}
 
-/* ── GUIDE ── */
+/* GUIDE */
 .guide{background:linear-gradient(135deg,#f0f7ff,#f5f3ff);
        border:1px solid #ddd6fe;border-radius:16px;padding:2rem;margin-bottom:2rem}
 .guide h2{font-size:1.15rem;font-weight:800;margin-bottom:1.25rem;color:#3730a3}
@@ -165,16 +131,14 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
 .gstep{display:flex;gap:.75rem;align-items:flex-start}
 .gstep-num{min-width:30px;height:30px;border-radius:50%;background:var(--accent);
            color:white;display:flex;align-items:center;justify-content:center;
-           font-size:13px;font-weight:700;flex-shrink:0;
-           box-shadow:0 2px 8px rgba(55,138,221,.4)}
+           font-size:13px;font-weight:700;flex-shrink:0}
 .gstep-txt strong{display:block;font-size:14px;margin-bottom:2px;color:#1e293b}
 .gstep-txt span{font-size:13px;color:var(--muted)}
 
-/* ── AUTHOR ── */
+/* AUTHOR */
 .author-section{background:var(--surface);border:1px solid var(--border);
-                border-radius:16px;padding:2rem;
-                display:flex;gap:1.5rem;align-items:center;
-                flex-wrap:wrap;margin-bottom:2rem}
+                border-radius:16px;padding:2rem;display:flex;gap:1.5rem;
+                align-items:center;flex-wrap:wrap;margin-bottom:2rem}
 .author-avatar{width:72px;height:72px;border-radius:50%;flex-shrink:0;
                background:linear-gradient(135deg,#378ADD,#534AB7);
                display:flex;align-items:center;justify-content:center;
@@ -185,23 +149,17 @@ nav{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);
 .author-tag{font-size:11px;padding:2px 9px;border-radius:999px;
             background:#f0f4ff;color:#3b5bdb;border:1px solid #dbe4ff}
 
-/* ── FOOTER ── */
+/* FOOTER */
 footer{background:#0f172a;color:#94a3b8;text-align:center;padding:2.5rem;font-size:13px}
 footer a{color:#7dd3fc;text-decoration:none}
 .footer-brand{font-size:1.1rem;font-weight:700;color:white;margin-bottom:.5rem}
 .footer-sub{margin-top:.5rem;font-size:12px;opacity:.7}
 
-/* ── ANIMATIONS ── */
-@keyframes fadeInUp{
-  from{opacity:0;transform:translateY(30px)}
-  to{opacity:1;transform:translateY(0)}
-}
+/* ANIMATIONS */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 .hero-content>*{animation:fadeInUp .7s ease both}
-.hero-author{animation-delay:.1s}
-.hero h1{animation-delay:.2s}
-.hero p{animation-delay:.35s}
-.hero-badges{animation-delay:.45s}
-.hero-cta{animation-delay:.55s}
+.hero-author{animation-delay:.1s}.hero h1{animation-delay:.2s}
+.hero p{animation-delay:.35s}.hero-badges{animation-delay:.45s}.hero-cta{animation-delay:.55s}
 </style>
 </head>
 <body>
@@ -216,7 +174,8 @@ footer a{color:#7dd3fc;text-decoration:none}
     <a href="no-supervisado.html">No Supervisado</a>
     <a href="redes-neuronales.html">Redes</a>
     <a href="keras.html">Keras</a>
-    <a href="simulador.html" class="highlight">🎛 Simulador</a>
+    <a href="simulador.html" class="hl">🎛 Simulador</a>
+    <a href="quiz-global.html" class="hl" style="background:#0F6E56">🧪 Quiz</a>
     <div class="nav-author">por <span>Sergio Dussán</span></div>
   </div>
 </nav>
@@ -233,43 +192,28 @@ footer a{color:#7dd3fc;text-decoration:none}
       <span class="hero-badge">🔬 scikit-learn</span>
       <span class="hero-badge">🧠 TensorFlow/Keras</span>
       <span class="hero-badge">🎛 Simulador interactivo</span>
-      <span class="hero-badge">🧪 Quizzes</span>
+      <span class="hero-badge">🧪 36 preguntas de quiz</span>
     </div>
-    <a class="hero-cta" href="#contenido">Explorar masterclasses →</a>
+    <a class="hero-cta" href="#masterclasses">Ver masterclasses →</a>
   </div>
 </div>
 
 <!-- STATS -->
 <div class="stats">
-  <div class="stat">
-    <div class="stat-val" data-target="5">0</div>
-    <div class="stat-label">Masterclasses</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" data-target="6">0</div>
-    <div class="stat-label">Simuladores</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" data-target="36">0</div>
-    <div class="stat-label">Preguntas de quiz</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" data-target="50">0</div>
-    <div class="stat-label">Gráficas interactivas</div>
-  </div>
+  <div class="stat"><div class="stat-val" data-target="5">0</div><div class="stat-label">Masterclasses</div></div>
+  <div class="stat"><div class="stat-val" data-target="6">0</div><div class="stat-label">Simuladores</div></div>
+  <div class="stat"><div class="stat-val" data-target="36">0</div><div class="stat-label">Preguntas quiz</div></div>
+  <div class="stat"><div class="stat-val" data-target="50">0</div><div class="stat-label">Gráficas interactivas</div></div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="section" id="contenido">
+<div class="section">
 
   <!-- SEARCH -->
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input class="search-input" type="text" id="searchInput"
-           placeholder="Buscar: Ridge, DBSCAN, Backprop, Dropout, LSTM, K-Means…"
-           oninput="doSearch(this.value)"
-           onblur="hideSearch()"
-           onfocus="doSearch(this.value)">
+           placeholder="Buscar: Ridge, DBSCAN, Backprop, Dropout, K-Means, LSTM…"
+           oninput="doSearch(this.value)" onblur="hideSearch()" onfocus="doSearch(this.value)">
     <div class="search-results" id="searchResults"></div>
   </div>
 
@@ -278,7 +222,7 @@ footer a{color:#7dd3fc;text-decoration:none}
     <div class="author-avatar">SD</div>
     <div class="author-info">
       <h3>Sergio Dussán</h3>
-      <p>Profesional en Data Science con formación y experiencia en Matemáticas Aplicadas y Machine Learning. Especializado en el análisis y modelado de datos para la generación de soluciones basadas en inteligencia artificial y analítica avanzada. Experto en la aplicación de técnicas estadísticas, aprendizaje automático y visualización de datos para apoyar la toma de decisiones estratégicas. Esta serie está diseñada para llevar a los estudiantes desde los fundamentos estadísticos hasta la implementación de modelos en producción, con ejemplos prácticos y código ejecutable en cada lección.</p>
+      <p>Educador y practicante de Matemáticas Aplicadas y Machine Learning. Esta serie está diseñada para llevar a los estudiantes desde los fundamentos estadísticos hasta la implementación de modelos en producción, con ejemplos prácticos y código ejecutable en cada lección.</p>
       <div class="author-tags">
         <span class="author-tag">Machine Learning</span>
         <span class="author-tag">Deep Learning</span>
@@ -288,57 +232,6 @@ footer a{color:#7dd3fc;text-decoration:none}
         <span class="author-tag">Matemáticas Aplicadas</span>
       </div>
     </div>
-  </div>
-
-  <!-- HERRAMIENTAS DESTACADAS -->
-  <div class="section-title" id="herramientas">🛠 Herramientas interactivas</div>
-  <div class="section-sub">Experimenta en tiempo real sin escribir una línea de código</div>
-
-  <div class="special-cards">
-
-    <!-- SIMULADOR -->
-    <a class="special-card" href="simulador.html"
-       style="background:linear-gradient(135deg,#1e3a5f,#534AB7)">
-      <div class="special-card-body">
-        <span class="special-card-icon">🎛</span>
-        <div class="special-card-title">Simulador de Hiperparámetros</div>
-        <div class="special-card-desc">
-          Mueve los sliders y observa en tiempo real cómo cambian las curvas de entrenamiento,
-          fronteras de decisión y el comportamiento de cada modelo.
-        </div>
-        <div class="special-card-tags">
-          <span class="special-card-tag">Ridge / Lasso</span>
-          <span class="special-card-tag">SVM</span>
-          <span class="special-card-tag">Árbol de decisión</span>
-          <span class="special-card-tag">Red Neuronal</span>
-          <span class="special-card-tag">K-Means</span>
-          <span class="special-card-tag">Learning Rate</span>
-        </div>
-      </div>
-      <div class="special-card-foot">⚡ 6 simuladores interactivos → Abrir simulador</div>
-    </a>
-
-    <!-- QUIZ -->
-    <a class="special-card" href="quiz-global.html"
-       style="background:linear-gradient(135deg,#064e3b,#0F6E56)">
-      <div class="special-card-body">
-        <span class="special-card-icon">🧪</span>
-        <div class="special-card-title">Quiz de Autoevaluación</div>
-        <div class="special-card-desc">
-          Pon a prueba tus conocimientos con 36 preguntas distribuidas en 6 temas.
-          Cada respuesta incluye explicación detallada y retroalimentación inmediata.
-        </div>
-        <div class="special-card-tags">
-          <span class="special-card-tag">Regresión</span>
-          <span class="special-card-tag">Clasificación</span>
-          <span class="special-card-tag">No supervisado</span>
-          <span class="special-card-tag">Redes neuronales</span>
-          <span class="special-card-tag">Keras</span>
-        </div>
-      </div>
-      <div class="special-card-foot">🧪 36 preguntas con explicaciones → Empezar quiz</div>
-    </a>
-
   </div>
 
   <!-- GUÍA -->
@@ -356,27 +249,29 @@ footer a{color:#7dd3fc;text-decoration:none}
         <div class="gstep-num">2</div>
         <div class="gstep-txt">
           <strong>Lee el código</strong>
-          <span>Ejemplos reales de Python listos para ejecutar en Jupyter.</span>
+          <span>Ejemplos reales de Python listos para ejecutar en Jupyter o Colab.</span>
         </div>
       </div>
       <div class="gstep">
         <div class="gstep-num">3</div>
         <div class="gstep-txt">
-          <strong>Usa el simulador</strong>
-          <span>Experimenta con hiperparámetros y observa el efecto visual.</span>
+          <strong>Usa el Simulador</strong>
+          <span>Mueve sliders y observa el efecto de los hiperparámetros en tiempo real.</span>
         </div>
       </div>
       <div class="gstep">
         <div class="gstep-num">4</div>
         <div class="gstep-txt">
-          <strong>Responde el quiz</strong>
-          <span>Evalúa tu comprensión con retroalimentación inmediata.</span>
+          <strong>Responde el Quiz</strong>
+          <span>Evalúa tu comprensión con retroalimentación inmediata en cada pregunta.</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MASTERCLASSES -->
+  <!-- ══════════════════════════════
+       MASTERCLASSES (PRIMERO)
+  ══════════════════════════════ -->
   <div class="section-title" id="masterclasses">📚 Masterclasses</div>
   <div class="section-sub">Selecciona un tema para comenzar</div>
 
@@ -389,16 +284,11 @@ footer a{color:#7dd3fc;text-decoration:none}
         <div class="card-title">Regresión en ML</div>
         <div class="card-desc">Lineal, Ridge, Lasso, ElasticNet, SVR y ensambles. Preprocesamiento, validación cruzada, hiperparámetros y métricas RMSE, R², MAE.</div>
         <div class="card-tags">
-          <span class="card-tag">OLS</span>
-          <span class="card-tag">Ridge/Lasso</span>
-          <span class="card-tag">Cross-Validation</span>
-          <span class="card-tag">RMSE / R²</span>
+          <span class="card-tag">OLS</span><span class="card-tag">Ridge/Lasso</span>
+          <span class="card-tag">Cross-Validation</span><span class="card-tag">RMSE / R²</span>
         </div>
       </div>
-      <div class="card-foot">
-        <span>7 secciones · Quiz incluido</span>
-        <span class="card-cta">Explorar →</span>
-      </div>
+      <div class="card-foot"><span>7 secciones</span><span class="card-cta">Explorar →</span></div>
     </a>
 
     <a class="card" href="clasificacion.html">
@@ -408,16 +298,11 @@ footer a{color:#7dd3fc;text-decoration:none}
         <div class="card-title">Clasificación en ML</div>
         <div class="card-desc">Regresión Logística, SVM, KNN, Árboles, Naive Bayes, Random Forest y XGBoost. Desbalance de clases, curvas ROC y matrices de confusión.</div>
         <div class="card-tags">
-          <span class="card-tag">SVM</span>
-          <span class="card-tag">SMOTE</span>
-          <span class="card-tag">ROC-AUC</span>
-          <span class="card-tag">F1-Score</span>
+          <span class="card-tag">SVM</span><span class="card-tag">SMOTE</span>
+          <span class="card-tag">ROC-AUC</span><span class="card-tag">F1-Score</span>
         </div>
       </div>
-      <div class="card-foot">
-        <span>7 secciones · Quiz incluido</span>
-        <span class="card-cta">Explorar →</span>
-      </div>
+      <div class="card-foot"><span>7 secciones</span><span class="card-cta">Explorar →</span></div>
     </a>
 
     <a class="card" href="no-supervisado.html">
@@ -427,16 +312,11 @@ footer a{color:#7dd3fc;text-decoration:none}
         <div class="card-title">Aprendizaje No Supervisado</div>
         <div class="card-desc">PCA, t-SNE, UMAP, K-Means, DBSCAN, GMM y detección de anomalías. Métricas Silhouette, ARI y Davies-Bouldin.</div>
         <div class="card-tags">
-          <span class="card-tag">PCA/t-SNE</span>
-          <span class="card-tag">UMAP</span>
-          <span class="card-tag">K-Means</span>
-          <span class="card-tag">DBSCAN</span>
+          <span class="card-tag">PCA/t-SNE</span><span class="card-tag">UMAP</span>
+          <span class="card-tag">K-Means</span><span class="card-tag">DBSCAN</span>
         </div>
       </div>
-      <div class="card-foot">
-        <span>7 secciones · Quiz incluido</span>
-        <span class="card-cta">Explorar →</span>
-      </div>
+      <div class="card-foot"><span>7 secciones</span><span class="card-cta">Explorar →</span></div>
     </a>
 
     <a class="card" href="redes-neuronales.html">
@@ -446,16 +326,11 @@ footer a{color:#7dd3fc;text-decoration:none}
         <div class="card-title">Redes Neuronales</div>
         <div class="card-desc">Desde la neurona hasta CNN, LSTM y Autoencoders. Forward pass, backpropagation, optimizadores y regularización paso a paso.</div>
         <div class="card-tags">
-          <span class="card-tag">MLP</span>
-          <span class="card-tag">CNN</span>
-          <span class="card-tag">LSTM/GRU</span>
-          <span class="card-tag">Backprop</span>
+          <span class="card-tag">MLP</span><span class="card-tag">CNN</span>
+          <span class="card-tag">LSTM/GRU</span><span class="card-tag">Backprop</span>
         </div>
       </div>
-      <div class="card-foot">
-        <span>9 secciones · Quiz incluido</span>
-        <span class="card-cta">Explorar →</span>
-      </div>
+      <div class="card-foot"><span>9 secciones</span><span class="card-cta">Explorar →</span></div>
     </a>
 
     <a class="card" href="keras.html">
@@ -465,20 +340,62 @@ footer a{color:#7dd3fc;text-decoration:none}
         <div class="card-title">Keras — Deep Learning API</div>
         <div class="card-desc">Sequential, Functional y Subclassing APIs. Capas, compilación, callbacks, custom layers, transfer learning y despliegue.</div>
         <div class="card-tags">
-          <span class="card-tag">Sequential</span>
-          <span class="card-tag">Functional</span>
-          <span class="card-tag">Callbacks</span>
-          <span class="card-tag">TFLite</span>
+          <span class="card-tag">Sequential</span><span class="card-tag">Functional</span>
+          <span class="card-tag">Callbacks</span><span class="card-tag">TFLite</span>
         </div>
       </div>
-      <div class="card-foot">
-        <span>9 secciones · Quiz incluido</span>
-        <span class="card-cta">Explorar →</span>
-      </div>
+      <div class="card-foot"><span>9 secciones</span><span class="card-cta">Explorar →</span></div>
     </a>
 
   </div>
-</div>
+
+  <!-- ══════════════════════════════
+       HERRAMIENTAS (DESPUÉS)
+  ══════════════════════════════ -->
+  <div class="section-title" id="herramientas">🛠 Herramientas interactivas</div>
+  <div class="section-sub">Experimenta en tiempo real — sin escribir código</div>
+
+  <div class="special-cards">
+
+    <a class="scard" href="simulador.html"
+       style="background:linear-gradient(135deg,#1e3a5f,#534AB7)">
+      <div class="scard-body">
+        <span class="scard-icon">🎛</span>
+        <div class="scard-title">Simulador de Hiperparámetros</div>
+        <div class="scard-desc">Mueve los sliders y observa en tiempo real cómo cambian las curvas de entrenamiento, fronteras de decisión y el comportamiento de cada modelo.</div>
+        <div class="scard-tags">
+          <span class="scard-tag">Ridge / Lasso</span>
+          <span class="scard-tag">SVM</span>
+          <span class="scard-tag">Árbol decisión</span>
+          <span class="scard-tag">Red Neuronal MLP</span>
+          <span class="scard-tag">K-Means</span>
+          <span class="scard-tag">Learning Rate</span>
+        </div>
+      </div>
+      <div class="scard-foot">⚡ 6 simuladores interactivos — Abrir →</div>
+    </a>
+
+    <a class="scard" href="quiz-global.html"
+       style="background:linear-gradient(135deg,#064e3b,#0F6E56)">
+      <div class="scard-body">
+        <span class="scard-icon">🧪</span>
+        <div class="scard-title">Quiz de Autoevaluación</div>
+        <div class="scard-desc">Pon a prueba tus conocimientos con 36 preguntas en 6 temas. Cada respuesta incluye explicación detallada y retroalimentación inmediata.</div>
+        <div class="scard-tags">
+          <span class="scard-tag">Regresión · 6 preguntas</span>
+          <span class="scard-tag">Clasificación · 6 preguntas</span>
+          <span class="scard-tag">No supervisado · 6 preguntas</span>
+          <span class="scard-tag">Redes · 6 preguntas</span>
+          <span class="scard-tag">Keras · 6 preguntas</span>
+          <span class="scard-tag">Hiperparámetros · 6 preguntas</span>
+        </div>
+      </div>
+      <div class="scard-foot">🧪 36 preguntas con explicaciones — Empezar →</div>
+    </a>
+
+  </div>
+
+</div><!-- /section -->
 
 <footer>
   <div class="footer-brand">🧠 Masterclass ML</div>
@@ -492,59 +409,37 @@ footer a{color:#7dd3fc;text-decoration:none}
 
 <script>
 /* ── PROGRESS BAR ── */
-window.addEventListener('scroll', () => {
-  const h = document.documentElement;
-  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-  document.getElementById('progress-bar').style.width = pct + '%';
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  document.getElementById('progress-bar').style.width=
+    (h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
 });
 
-/* ── HERO CANVAS (red neuronal animada) ── */
-(function () {
-  const cv  = document.getElementById('hero-canvas');
-  const ctx = cv.getContext('2d');
-  let W, H, nodes = [];
-
-  function resize() {
-    W = cv.width  = cv.offsetWidth;
-    H = cv.height = cv.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  function Node() {
-    this.x  = Math.random() * W;
-    this.y  = Math.random() * H;
-    this.vx = (Math.random() - .5) * .4;
-    this.vy = (Math.random() - .5) * .4;
-    this.r  = Math.random() * 2 + 1.5;
-  }
-  for (let i = 0; i < 55; i++) nodes.push(new Node());
-
-  function loop() {
-    ctx.clearRect(0, 0, W, H);
-    nodes.forEach(n => {
-      n.x += n.vx; n.y += n.vy;
-      if (n.x < 0 || n.x > W) n.vx *= -1;
-      if (n.y < 0 || n.y > H) n.vy *= -1;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,.7)';
-      ctx.fill();
+/* ── HERO CANVAS ── */
+(function(){
+  const cv=document.getElementById('hero-canvas');
+  const ctx=cv.getContext('2d');
+  let W,H,nodes=[];
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight}
+  resize();window.addEventListener('resize',resize);
+  function Node(){this.x=Math.random()*W;this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*.4;this.vy=(Math.random()-.5)*.4;this.r=Math.random()*2+1.5}
+  for(let i=0;i<55;i++) nodes.push(new Node());
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    nodes.forEach(n=>{
+      n.x+=n.vx;n.y+=n.vy;
+      if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();
     });
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const dx = nodes[i].x - nodes[j].x;
-        const dy = nodes[i].y - nodes[j].y;
-        const d  = Math.sqrt(dx * dx + dy * dy);
-        if (d < 120) {
-          ctx.beginPath();
-          ctx.moveTo(nodes[i].x, nodes[i].y);
-          ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.strokeStyle = `rgba(255,255,255,${.5 * (1 - d / 120)})`;
-          ctx.lineWidth = .8;
-          ctx.stroke();
-        }
-      }
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);
+        ctx.lineTo(nodes[j].x,nodes[j].y);
+        ctx.strokeStyle=`rgba(255,255,255,${.5*(1-d/120)})`;
+        ctx.lineWidth=.8;ctx.stroke();}
     }
     requestAnimationFrame(loop);
   }
@@ -552,104 +447,92 @@ window.addEventListener('scroll', () => {
 })();
 
 /* ── COUNTER ANIMATION ── */
-function animateCounter(el, target) {
-  let startTime = null;
-  const duration = 1800;
-  const suffix = target >= 10 ? '+' : '';
-  function step(ts) {
-    if (!startTime) startTime = ts;
-    const p    = Math.min((ts - startTime) / duration, 1);
-    const ease = 1 - Math.pow(1 - p, 4);
-    el.textContent = Math.round(ease * target) + suffix;
-    if (p < 1) requestAnimationFrame(step);
+function animateCounter(el,target){
+  let startTime=null;
+  const duration=1800, suffix=target>=10?'+':'';
+  function step(ts){
+    if(!startTime)startTime=ts;
+    const p=Math.min((ts-startTime)/duration,1);
+    el.textContent=Math.round((1-Math.pow(1-p,4))*target)+suffix;
+    if(p<1)requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
 }
+const statObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    animateCounter(e.target,parseInt(e.target.dataset.target));
+    statObs.unobserve(e.target);
+  }});
+},{threshold:.5});
+document.querySelectorAll('[data-target]').forEach(el=>statObs.observe(el));
 
-const statObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      animateCounter(e.target, parseInt(e.target.dataset.target));
-      statObs.unobserve(e.target);
-    }
-  });
-}, { threshold: .5 });
-document.querySelectorAll('[data-target]').forEach(el => statObs.observe(el));
-
-/* ── CARD SCROLL ANIMATION ── */
-const cardObs = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => {
-    if (e.isIntersecting) {
-      setTimeout(() => e.target.classList.add('visible'), i * 100);
-      cardObs.unobserve(e.target);
-    }
-  });
-}, { threshold: .1 });
-document.querySelectorAll('.card').forEach(c => cardObs.observe(c));
+/* ── CARD ANIMATION ── */
+const cardObs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{if(e.isIntersecting){
+    setTimeout(()=>e.target.classList.add('visible'),i*100);
+    cardObs.unobserve(e.target);
+  }});
+},{threshold:.1});
+document.querySelectorAll('.card').forEach(c=>cardObs.observe(c));
 
 /* ── SEARCH ── */
-const searchData = [
+const searchData=[
   {icon:'📐',title:'Ridge Regression',sub:'Regularización L2 para multicolinealidad',url:'regresion.html'},
-  {icon:'📐',title:'Lasso — selección de features',sub:'Regularización L1, coeficientes a cero',url:'regresion.html'},
-  {icon:'📐',title:'ElasticNet',sub:'Combina L1+L2 con l1_ratio',url:'regresion.html'},
-  {icon:'📐',title:'Cross-Validation KFold',sub:'Estrategia anti data-leakage',url:'regresion.html'},
-  {icon:'📐',title:'RMSE y R²',sub:'Métricas estándar de regresión',url:'regresion.html'},
+  {icon:'📐',title:'Lasso — selección de features',sub:'Regularización L1',url:'regresion.html'},
+  {icon:'📐',title:'ElasticNet',sub:'Combina L1+L2',url:'regresion.html'},
+  {icon:'📐',title:'Cross-Validation KFold',sub:'Anti data-leakage',url:'regresion.html'},
+  {icon:'📐',title:'RMSE y R²',sub:'Métricas de regresión',url:'regresion.html'},
   {icon:'🎯',title:'Regresión Logística',sub:'Clasificación binaria con sigmoide',url:'clasificacion.html'},
-  {icon:'🎯',title:'SVM — Support Vector Machine',sub:'Margen máximo, kernel RBF',url:'clasificacion.html'},
-  {icon:'🎯',title:'SMOTE — Oversampling',sub:'Ejemplos sintéticos clase minoritaria',url:'clasificacion.html'},
-  {icon:'🎯',title:'ROC-AUC y F1-Score',sub:'Métricas para clases desbalanceadas',url:'clasificacion.html'},
-  {icon:'🎯',title:'Matriz de confusión',sub:'TP, FP, FN, TN explicados',url:'clasificacion.html'},
+  {icon:'🎯',title:'SVM — Support Vector Machine',sub:'Kernel RBF, margen máximo',url:'clasificacion.html'},
+  {icon:'🎯',title:'SMOTE',sub:'Oversampling para clase minoritaria',url:'clasificacion.html'},
+  {icon:'🎯',title:'ROC-AUC y F1-Score',sub:'Métricas para desbalance',url:'clasificacion.html'},
   {icon:'🔵',title:'PCA — Componentes Principales',sub:'Reducción lineal de dimensiones',url:'no-supervisado.html'},
-  {icon:'🔵',title:'t-SNE',sub:'Visualización 2D preservando vecinos',url:'no-supervisado.html'},
-  {icon:'🔵',title:'UMAP',sub:'Rápido, proyectable, estructura global',url:'no-supervisado.html'},
-  {icon:'🔵',title:'K-Means Clustering',sub:'Elbow method y Silhouette Score',url:'no-supervisado.html'},
+  {icon:'🔵',title:'t-SNE',sub:'Visualización 2D de alta dimensión',url:'no-supervisado.html'},
+  {icon:'🔵',title:'UMAP',sub:'Rápido y proyectable',url:'no-supervisado.html'},
+  {icon:'🔵',title:'K-Means Clustering',sub:'Elbow method y Silhouette',url:'no-supervisado.html'},
   {icon:'🔵',title:'DBSCAN',sub:'Clustering por densidad, detecta outliers',url:'no-supervisado.html'},
   {icon:'🧠',title:'Backpropagation',sub:'Regla de la cadena y gradientes',url:'redes-neuronales.html'},
-  {icon:'🧠',title:'Dropout y BatchNorm',sub:'Regularización en redes neuronales',url:'redes-neuronales.html'},
-  {icon:'🧠',title:'CNN — Redes Convolucionales',sub:'Filtros para imágenes',url:'redes-neuronales.html'},
-  {icon:'🧠',title:'LSTM y GRU',sub:'Memoria a largo plazo en secuencias',url:'redes-neuronales.html'},
-  {icon:'🧠',title:'Autoencoder y VAE',sub:'Compresión y detección de anomalías',url:'redes-neuronales.html'},
-  {icon:'⚡',title:'Keras Sequential API',sub:'Arquitecturas lineales paso a paso',url:'keras.html'},
+  {icon:'🧠',title:'Dropout y BatchNorm',sub:'Regularización en redes',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'CNN',sub:'Filtros convolucionales para imágenes',url:'redes-neuronales.html'},
+  {icon:'🧠',title:'LSTM y GRU',sub:'Memoria en secuencias',url:'redes-neuronales.html'},
+  {icon:'⚡',title:'Keras Sequential API',sub:'Arquitecturas lineales',url:'keras.html'},
   {icon:'⚡',title:'Keras Functional API',sub:'Multi-input, skip connections',url:'keras.html'},
-  {icon:'⚡',title:'Callbacks — EarlyStopping',sub:'Controlar el entrenamiento',url:'keras.html'},
-  {icon:'⚡',title:'Transfer Learning con Keras',sub:'EfficientNet, ResNet, fine-tuning',url:'keras.html'},
+  {icon:'⚡',title:'Callbacks EarlyStopping',sub:'Controlar el entrenamiento',url:'keras.html'},
+  {icon:'⚡',title:'Transfer Learning',sub:'EfficientNet, ResNet, fine-tuning',url:'keras.html'},
   {icon:'🎛',title:'Simulador Ridge / Lasso',sub:'Slider de alpha en tiempo real',url:'simulador.html'},
   {icon:'🎛',title:'Simulador SVM',sub:'C y gamma con frontera de decisión',url:'simulador.html'},
   {icon:'🎛',title:'Simulador Árbol de Decisión',sub:'max_depth y bias-variance',url:'simulador.html'},
-  {icon:'🎛',title:'Simulador Red Neuronal',sub:'LR, Dropout, capas, batch size',url:'simulador.html'},
+  {icon:'🎛',title:'Simulador Red Neuronal MLP',sub:'LR, Dropout, capas, batch size',url:'simulador.html'},
   {icon:'🎛',title:'Simulador K-Means',sub:'K, Elbow y Silhouette en tiempo real',url:'simulador.html'},
   {icon:'🎛',title:'Simulador Learning Rate',sub:'6 tipos de schedule comparados',url:'simulador.html'},
+  {icon:'🧪',title:'Quiz Regresión',sub:'6 preguntas con explicaciones',url:'quiz-global.html'},
+  {icon:'🧪',title:'Quiz Clasificación',sub:'6 preguntas con explicaciones',url:'quiz-global.html'},
+  {icon:'🧪',title:'Quiz No Supervisado',sub:'6 preguntas con explicaciones',url:'quiz-global.html'},
+  {icon:'🧪',title:'Quiz Redes Neuronales',sub:'6 preguntas con explicaciones',url:'quiz-global.html'},
 ];
 
-function doSearch(q) {
-  const res = document.getElementById('searchResults');
-  if (!q || q.length < 2) { res.style.display = 'none'; return; }
-  const hits = searchData.filter(d =>
-    d.title.toLowerCase().includes(q.toLowerCase()) ||
+function doSearch(q){
+  const res=document.getElementById('searchResults');
+  if(!q||q.length<2){res.style.display='none';return}
+  const hits=searchData.filter(d=>
+    d.title.toLowerCase().includes(q.toLowerCase())||
     d.sub.toLowerCase().includes(q.toLowerCase())
-  ).slice(0, 7);
-  if (!hits.length) { res.style.display = 'none'; return; }
-  res.innerHTML = hits.map(h => `
+  ).slice(0,7);
+  if(!hits.length){res.style.display='none';return}
+  res.innerHTML=hits.map(h=>`
     <div class="search-item" onmousedown="location.href='${h.url}'">
-      <span class="search-item-icon">${h.icon}</span>
-      <div>
-        <div class="search-item-title">${highlight(h.title, q)}</div>
-        <div class="search-item-sub">${h.sub}</div>
-      </div>
+      <span style="font-size:16px">${h.icon}</span>
+      <div><div class="search-item-title">${hl(h.title,q)}</div>
+           <div class="search-item-sub">${h.sub}</div></div>
     </div>`).join('');
-  res.style.display = 'block';
+  res.style.display='block';
 }
-
-function highlight(text, q) {
-  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
-  return text.replace(re,
+function hl(text,q){
+  return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),
     '<mark style="background:#dbeafe;color:#1e40af;border-radius:3px;padding:0 2px">$1</mark>');
 }
-
-function hideSearch() {
-  setTimeout(() => {
-    document.getElementById('searchResults').style.display = 'none';
-  }, 200);
+function hideSearch(){
+  setTimeout(()=>document.getElementById('searchResults').style.display='none',200);
 }
 </script>
 </body>
